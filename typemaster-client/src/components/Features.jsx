@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { TrendingUp, Crosshair, Award, BarChart2 } from 'lucide-react';
 
 const ranks = [
