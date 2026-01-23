@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Keyboard, Lock, Mail, User, ArrowRight } from 'lucide-react';
 
@@ -7,9 +6,11 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,26 +19,33 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        credentials: 'include',
+        body: JSON.stringify({ username: formData.username, email: formData.email, password: formData.password })
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.msg || 'Signup failed');
+        throw new Error(data.errors ? data.errors.map(e => e.msg).join(', ') : data.msg || 'Signup failed');
       }
 
-      // Save token
-      localStorage.setItem('token', data.token);
-      navigate('/'); 
+      navigate('/');
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,31 +119,50 @@ const Signup = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  minLength="6"
-                  className="block w-full pl-10 pr-3 py-3 bg-base-navy/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-white placeholder-gray-500 transition-all outline-none"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
+             <div className="space-y-2">
+               <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+               <div className="relative group">
+                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                   <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
+                 </div>
+                 <input
+                   type="password"
+                   name="password"
+                   value={formData.password}
+                   onChange={handleChange}
+                   required
+                   minLength="6"
+                   className="block w-full pl-10 pr-3 py-3 bg-base-navy/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-white placeholder-gray-500 transition-all outline-none"
+                   placeholder="••••••••"
+                 />
+               </div>
+             </div>
+
+             <div className="space-y-2">
+               <label className="text-sm font-medium text-gray-300 ml-1">Confirm Password</label>
+               <div className="relative group">
+                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                   <Lock className="h-5 w-5 text-gray-500 group-focus-within:text-primary transition-colors" />
+                 </div>
+                 <input
+                   type="password"
+                   name="confirmPassword"
+                   value={formData.confirmPassword}
+                   onChange={handleChange}
+                   required
+                   className="block w-full pl-10 pr-3 py-3 bg-base-navy/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-white placeholder-gray-500 transition-all outline-none"
+                   placeholder="••••••••"
+                 />
+               </div>
+             </div>
 
             <button
               type="submit"
-              className="w-full py-4 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-2 group mt-2"
+              disabled={loading}
+              className="w-full py-4 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-2 group mt-2"
             >
-              Start Career
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              {loading ? 'Signing up...' : 'Start Career'}
+              {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
 

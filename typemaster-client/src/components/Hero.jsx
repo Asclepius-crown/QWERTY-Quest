@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Zap, Users, Trophy, Target, ArrowRight } from 'lucide-react';
 
 const Hero = () => {

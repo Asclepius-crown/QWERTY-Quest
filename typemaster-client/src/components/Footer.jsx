@@ -1,5 +1,6 @@
 import React from 'react';
 import { Keyboard, Twitter, Github, Linkedin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -11,14 +12,14 @@ const Footer = () => {
              <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
              <div className="relative z-10">
                 <h2 className="text-3xl md:text-5xl font-bold mb-6">Stop practicing. Start <span className="text-primary-glow">competing.</span></h2>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                   <button className="px-8 py-4 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-lg shadow-lg transition-all">
-                      Enter the Arena
-                   </button>
-                   <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold text-lg backdrop-blur-sm transition-all">
-                      Create Free Account
-                   </button>
-                </div>
+                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Link to="/play" className="px-8 py-4 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-lg shadow-lg transition-all text-center">
+                       Enter the Arena
+                    </Link>
+                    <Link to="/signup" className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold text-lg backdrop-blur-sm transition-all text-center">
+                       Create Free Account
+                    </Link>
+                 </div>
              </div>
           </div>
 

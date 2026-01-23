@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Zap, Trophy, Lock } from 'lucide-react';
 
 const modes = [

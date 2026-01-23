@@ -33,14 +33,19 @@ const Navbar = () => {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8">
-          {['Home', 'Play', 'Leaderboard', 'How it Works'].map((item) => (
-            <a 
-              key={item} 
-              href={`#${item.toLowerCase().replace(' ', '-')}`} 
+          {[
+            { label: 'Home', to: '/' },
+            { label: 'Play', to: '/play' },
+            { label: 'Leaderboard', to: '/leaderboard' },
+            { label: 'How it Works', to: '/how-it-works' }
+          ].map((item) => (
+            <Link
+              key={item.label}
+              to={item.to}
               className="text-gray-400 hover:text-white transition-colors text-sm uppercase tracking-wide font-medium"
             >
-              {item}
-            </a>
+              {item.label}
+            </Link>
           ))}
         </div>
 
@@ -60,19 +65,24 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-base-dark/95 backdrop-blur-xl border-t border-white/10 p-6 flex flex-col gap-4 shadow-2xl h-screen">
-           {['Home', 'Play', 'Leaderboard', 'How it Works'].map((item) => (
-            <a 
-              key={item} 
-              href={`#${item.toLowerCase().replace(' ', '-')}`} 
-              className="text-gray-300 hover:text-white py-4 text-xl font-medium border-b border-white/5 last:border-0 block text-center"
-              onClick={() => setIsOpen(false)}
-            >
-              {item}
-            </a>
-          ))}
+       {/* Mobile Menu */}
+       {isOpen && (
+         <div className="md:hidden absolute top-full left-0 w-full bg-base-dark/95 backdrop-blur-xl border-t border-white/10 p-6 flex flex-col gap-4 shadow-2xl h-screen">
+            {[
+              { label: 'Home', to: '/' },
+              { label: 'Play', to: '/play' },
+              { label: 'Leaderboard', to: '/leaderboard' },
+              { label: 'How it Works', to: '/how-it-works' }
+            ].map((item) => (
+             <Link
+               key={item.label}
+               to={item.to}
+               className="text-gray-300 hover:text-white py-4 text-xl font-medium border-b border-white/5 last:border-0 block text-center"
+               onClick={() => setIsOpen(false)}
+             >
+               {item.label}
+             </Link>
+           ))}
           <div className="flex flex-col gap-4 mt-8">
             <Link to="/login" className="w-full py-4 text-white border border-white/20 rounded-xl font-bold hover:bg-white/5 transition-colors text-center" onClick={() => setIsOpen(false)}>Login</Link>
             <Link to="/signup" className="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-primary-hover transition-colors text-center" onClick={() => setIsOpen(false)}>Sign Up Free</Link>
