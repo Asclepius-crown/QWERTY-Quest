@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Keyboard, Lock, Mail, User, ArrowRight } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,28 +28,13 @@ const Signup = () => {
       return;
     }
     setLoading(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ username: formData.username, email: formData.email, password: formData.password })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.errors ? data.errors.map(e => e.msg).join(', ') : data.msg || 'Signup failed');
-      }
-
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    const result = await signup(formData.username, formData.email, formData.password);
+    if (result.success) {
+       navigate('/');
+    } else {
+      setError(result.error);
     }
+    setLoading(false);
   };
 
   return (

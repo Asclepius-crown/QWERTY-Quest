@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema({
     required: true,
     minlength: 6
   },
+  avatar: {
+    type: String,
+    default: 'avatar1'
+  },
   stats: {
     xp: { type: Number, default: 0 },
     level: { type: Number, default: 1 },

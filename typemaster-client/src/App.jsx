@@ -7,6 +7,7 @@ import Play from './pages/Play';
 import Leaderboard from './pages/Leaderboard';
 import HowItWorks from './pages/HowItWorks';
 import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -15,10 +16,10 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/play" element={<Play />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/play" element={<ProtectedRoute><Play /></ProtectedRoute>} />
+        <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       </Routes>
     </Router>
   );
