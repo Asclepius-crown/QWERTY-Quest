@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Keyboard, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Keyboard, Lock, Mail, ArrowRight, Key } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { startAuthentication } from '@simplewebauthn/browser';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,9 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [needMfa, setNeedMfa] = useState(false);
+  const [mfaToken, setMfaToken] = useState('');
+  const [savedCredentials, setSavedCredentials] = useState({ email: '', password: '' });
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -22,11 +26,60 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    setSavedCredentials({ email: formData.email, password: formData.password });
     const result = await login(formData.email, formData.password);
+    if (result.success) {
+      navigate('/');
+    } else if (result.needMfa) {
+      setNeedMfa(true);
+    } else {
+      setError(result.error);
+    }
+    setLoading(false);
+  };
+
+  const handleMfaSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    const result = await login(savedCredentials.email, savedCredentials.password, mfaToken);
     if (result.success) {
       navigate('/');
     } else {
       setError(result.error);
+    }
+    setLoading(false);
+  };
+
+  const loginWithPasskey = async () => {
+    const username = prompt('Enter your username:');
+    if (!username) return;
+    setError('');
+    setLoading(true);
+    try {
+      const startRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/webauthn/authenticate/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username }),
+        credentials: 'include'
+      });
+      if (!startRes.ok) throw new Error('No passkeys registered for this user');
+      const options = await startRes.json();
+      const authResponse = await startAuthentication(options);
+      const finishRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/webauthn/authenticate/finish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...authResponse, username }),
+        credentials: 'include'
+      });
+      if (finishRes.ok) {
+        navigate('/');
+      } else {
+        setError('Passkey authentication failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Error during passkey login: ' + err.message);
     }
     setLoading(false);
   };
@@ -62,6 +115,38 @@ const Login = () => {
               {error}
             </div>
           )}
+
+          {/* OAuth Buttons */}
+          <div className="space-y-4 mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-base-dark px-2 text-gray-400">Or continue with</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`}
+                className="flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all hover:shadow-lg"
+              >
+                Google
+              </button>
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/github`}
+                className="flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all hover:shadow-lg"
+              >
+                GitHub
+              </button>
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/discord`}
+                className="flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all hover:shadow-lg"
+              >
+                Discord
+              </button>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -117,6 +202,63 @@ const Login = () => {
               {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
+
+          {/* Passkey Login */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-base-dark px-2 text-gray-400">Or</span>
+              </div>
+            </div>
+            <div className="mt-4">
+              <button
+                onClick={loginWithPasskey}
+                disabled={loading}
+                className="w-full py-4 bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-2 group border border-white/20"
+              >
+                <Key className="w-5 h-5" />
+                {loading ? 'Authenticating...' : 'Login with Passkey'}
+              </button>
+            </div>
+          </div>
+
+          {/* MFA Verification */}
+          {needMfa && (
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-base-dark px-2 text-gray-400">Enter MFA Code</span>
+                </div>
+              </div>
+              <form onSubmit={handleMfaSubmit} className="mt-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1">Authenticator Code</label>
+                  <input
+                    type="text"
+                    value={mfaToken}
+                    onChange={(e) => setMfaToken(e.target.value)}
+                    required
+                    maxLength="6"
+                    className="block w-full pl-3 py-3 bg-base-navy/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-white placeholder-gray-500 transition-all outline-none text-center text-lg font-mono"
+                    placeholder="000000"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full mt-4 py-3 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold transition-all"
+                >
+                  {loading ? 'Verifying...' : 'Verify & Login'}
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="mt-8 text-center text-sm text-gray-400">
             Don't have an account?{' '}

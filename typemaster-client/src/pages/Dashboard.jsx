@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Trophy, Zap, Target, BarChart2, Play, Users, Settings, User, Skull, Zap as ZapIcon, Crown, Star, Ghost, Flame } from 'lucide-react';
+import { Trophy, Zap, Target, BarChart2, Play, Users, Settings, User, Skull, Zap as ZapIcon, Crown, Star, Ghost, Flame, Key, Shield } from 'lucide-react';
+import { startRegistration } from '@simplewebauthn/browser';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
 
 const Dashboard = () => {
   const { user, updateAvatar } = useAuth();
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || 'avatar1');
+  const [showMfaSetup, setShowMfaSetup] = useState(false);
+  const [mfaQrCode, setMfaQrCode] = useState('');
+  const [mfaToken, setMfaToken] = useState('');
 
   const stats = [
     { icon: Zap, label: 'WPM', value: '0', desc: 'Average Speed' },
@@ -33,6 +37,72 @@ const Dashboard = () => {
     if (!result.success) {
       setSelectedAvatar(oldAvatar);
       // Could show error message
+    }
+  };
+
+  const registerPasskey = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/webauthn/register/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to start registration');
+      const options = await response.json();
+      const registrationResponse = await startRegistration(options);
+      const finishResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/webauthn/register/finish`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(registrationResponse),
+        credentials: 'include'
+      });
+      if (finishResponse.ok) {
+        alert('Passkey registered successfully!');
+      } else {
+        alert('Failed to register passkey');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error registering passkey: ' + err.message);
+    }
+  };
+
+  const setupMfa = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/mfa/setup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to setup MFA');
+      const data = await response.json();
+      setMfaQrCode(data.qrCodeUrl);
+      setShowMfaSetup(true);
+    } catch (err) {
+      console.error(err);
+      alert('Error setting up MFA: ' + err.message);
+    }
+  };
+
+  const enableMfa = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/mfa/enable`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: mfaToken }),
+        credentials: 'include'
+      });
+      if (response.ok) {
+        alert('MFA enabled successfully!');
+        setShowMfaSetup(false);
+        setMfaQrCode('');
+        setMfaToken('');
+      } else {
+        alert('Invalid token');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error enabling MFA');
     }
   };
 
@@ -100,9 +170,75 @@ const Dashboard = () => {
                 );
               })}
             </div>
-          </motion.div>
+           </motion.div>
 
-          {/* Quick Actions */}
+           {/* Passkey Registration */}
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.6, delay: 0.3 }}
+             className="glass-card p-8 rounded-2xl border border-white/5 mb-12"
+           >
+             <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+               <Key className="w-6 h-6 text-primary" />
+               Secure Your Account
+             </h3>
+             <p className="text-gray-400 mb-6">Register a passkey for passwordless, biometric authentication. More secure and convenient!</p>
+             <button
+               onClick={registerPasskey}
+               className="px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2"
+             >
+               <Key className="w-5 h-5" />
+               Register Passkey
+             </button>
+           </motion.div>
+
+           {/* MFA Setup */}
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.6, delay: 0.35 }}
+             className="glass-card p-8 rounded-2xl border border-white/5 mb-12"
+           >
+             <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
+               <Shield className="w-6 h-6 text-primary" />
+               Multi-Factor Authentication
+             </h3>
+             <p className="text-gray-400 mb-6">Add an extra layer of security with TOTP from your authenticator app.</p>
+             {!showMfaSetup ? (
+               <button
+                 onClick={setupMfa}
+                 className="px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2"
+               >
+                 <Shield className="w-5 h-5" />
+                 Setup MFA
+               </button>
+             ) : (
+               <div className="space-y-4">
+                 <p className="text-sm text-gray-300">Scan this QR code with your authenticator app:</p>
+                 <img src={mfaQrCode} alt="MFA QR Code" className="mx-auto" />
+                 <div className="space-y-2">
+                   <label className="text-sm font-medium text-gray-300">Enter the 6-digit code:</label>
+                   <input
+                     type="text"
+                     value={mfaToken}
+                     onChange={(e) => setMfaToken(e.target.value)}
+                     maxLength="6"
+                     className="block w-full pl-3 py-2 bg-base-navy/50 border border-white/10 rounded-xl text-white text-center text-lg font-mono"
+                     placeholder="000000"
+                   />
+                 </div>
+                 <button
+                   onClick={enableMfa}
+                   className="w-full py-3 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold transition-all"
+                 >
+                   Enable MFA
+                 </button>
+               </div>
+             )}
+           </motion.div>
+
+           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

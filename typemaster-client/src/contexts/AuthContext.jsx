@@ -41,19 +41,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, mfaToken = '') => {
     try {
+      const body = { email, password };
+      if (mfaToken) body.mfaToken = mfaToken;
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(body)
       });
-
       if (response.ok) {
         const data = await response.json();
+        if (data.needMfa) {
+          return { needMfa: true, user: data.user };
+        }
         setUser(data.user);
         setIsLoggedIn(true);
         return { success: true };

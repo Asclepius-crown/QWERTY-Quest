@@ -17,9 +17,28 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false,
     minlength: 6
   },
+  provider: {
+    type: String,
+    enum: ['google', 'github', 'discord']
+  },
+  providerId: {
+    type: String
+  },
+  displayName: {
+    type: String
+  },
+  authenticators: [{
+    credentialId: { type: String, required: true },
+    publicKey: { type: String, required: true },
+    counter: { type: Number, default: 0 },
+    transports: [String]
+  }],
+  challenge: String,
+  mfaSecret: String,
+  isMfaEnabled: { type: Boolean, default: false },
   avatar: {
     type: String,
     default: 'avatar1'

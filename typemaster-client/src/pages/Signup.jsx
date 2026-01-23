@@ -69,6 +69,38 @@ const Signup = () => {
             </div>
           )}
 
+          {/* OAuth Buttons */}
+          <div className="space-y-4 mb-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-base-dark px-2 text-gray-400">Or continue with</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/google`}
+                className="flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all hover:shadow-lg"
+              >
+                Google
+              </button>
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/github`}
+                className="flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all hover:shadow-lg"
+              >
+                GitHub
+              </button>
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_BASE_URL}/auth/discord`}
+                className="flex items-center justify-center py-3 px-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-medium transition-all hover:shadow-lg"
+              >
+                Discord
+              </button>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
              <div className="space-y-2">
               <label className="text-sm font-medium text-gray-300 ml-1">Username</label>
