@@ -13,7 +13,7 @@ const app = express();
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: [process.env.CLIENT_URL, 'http://localhost:3000', 'http://localhost:5173'].filter(Boolean),
   credentials: true
 }));
 app.use(rateLimit({
@@ -24,9 +24,16 @@ app.use(morgan('combined'));
 app.use(express.json());
 
 // DB Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/typemaster')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log(err));
+// Forcing local connection to resolve Atlas timeout issues
+const mongoURI = 'mongodb://127.0.0.1:27017/typemaster';
+
+mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
+  .then(() => {
+    console.log('MongoDB Connected');
+  })
+  .catch(err => {
+    console.log('MongoDB Connection Error:', err);
+  });
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -40,7 +47,8 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  fs.appendFileSync(logFile, `[${new Date().toISOString()}] Global Error: ${err.message}\nStack: ${err.stack}\n`);
+  res.status(500).json({ error: err.message, stack: err.stack });
 });
 
 const PORT = process.env.PORT || 5000;

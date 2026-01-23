@@ -39,7 +39,7 @@ router.post('/signup', [
 
      // Create JWT
      const payload = { user: { id: user.id } };
-     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' }, (err, token) => {
+     jwt.sign(payload, process.env.JWT_SECRET || 'secret123', { expiresIn: '1d' }, (err, token) => {
        if (err) throw err;
        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
        res.json({ user: { id: user.id, username: user.username, stats: user.stats } });
@@ -47,7 +47,7 @@ router.post('/signup', [
 
   } catch (err) {
     console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -80,8 +80,9 @@ router.post('/login', [
     }
 
      // Return JWT
+     // Create JWT
      const payload = { user: { id: user.id } };
-     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' }, (err, token) => {
+     jwt.sign(payload, process.env.JWT_SECRET || 'secret123', { expiresIn: '1d' }, (err, token) => {
        if (err) throw err;
        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
        res.json({ user: { id: user.id, username: user.username, stats: user.stats } });
