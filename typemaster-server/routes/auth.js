@@ -91,6 +91,9 @@ router.post('/login', [
     }
 
     // Check password
+    if (!user.password) {
+      return res.status(400).json({ msg: 'Please login with your social account' });
+    }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid Credentials' });
@@ -114,9 +117,14 @@ router.post('/login', [
 
      // Return JWT
      const payload = { user: { id: user.id } };
-     jwt.sign(payload, process.env.JWT_SECRET || 'secret123', { expiresIn: '1d' }, (err, token) => {
+     jwt.sign(payload, process.env.JWT_SECRET || 'secret123', { expiresIn: '1d' }, async (err, token) => {
        if (err) throw err;
        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
+       try {
+         await Log.create({ userId: user.id, action: 'login', ip: req.ip, userAgent: req.get('User-Agent') });
+       } catch (e) {
+         console.error('Log error:', e);
+       }
        res.json({ user: { id: user.id, username: user.username, stats: user.stats } });
      });
 
