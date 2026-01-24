@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -80,6 +81,7 @@ app.use(rateLimit({
 }));
 app.use(morgan('combined'));
 app.use(express.json());
+app.use(cookieParser());
 
 // Passport
 app.use(passport.initialize());
@@ -185,7 +187,6 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  fs.appendFileSync(logFile, `[${new Date().toISOString()}] Global Error: ${err.message}\nStack: ${err.stack}\n`);
   res.status(500).json({ error: err.message, stack: err.stack });
 });
 

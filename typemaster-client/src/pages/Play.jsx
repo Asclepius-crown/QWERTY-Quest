@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard } from 'lucide-react';
+import { motion, useAnimation } from 'framer-motion';
+import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard, Sword } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
 
 const Play = () => {
   const { user } = useAuth();
-  const [mode, setMode] = useState('solo'); // solo, quick-race, custom
-  const [difficulty, setDifficulty] = useState('medium'); // easy, medium, hard
-  const [duration, setDuration] = useState(60); // seconds
-  const [gameState, setGameState] = useState('waiting'); // waiting, matching, countdown, active, completed
-  const [text, setText] = useState('');
-  const [textId, setTextId] = useState(null);
+  const location = useLocation();
+  const controls = useAnimation();
+  
+  const [mode, setMode] = useState(location.state?.mode || 'solo');
+  const [difficulty, setDifficulty] = useState('medium');
+  const [duration, setDuration] = useState(60);
+  const [gameState, setGameState] = useState('waiting');
+  const [text, setText] = useState(location.state?.textContent || '');
+  const [textId, setTextId] = useState(location.state?.textId || null);
   const [customText, setCustomText] = useState('');
   const [userInput, setUserInput] = useState('');
   const [socket, setSocket] = useState(null);
@@ -25,36 +30,132 @@ const Play = () => {
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [loading, setLoading] = useState(false);
+  const [streak, setStreak] = useState(0); // New: Combo Streak
+
   const inputRef = useRef(null);
+  const audioContextRef = useRef(null);
+
+  // Determine Atmosphere based on WPM
+  const getAtmosphereClass = () => {
+    if (gameState !== 'active') return 'bg-base-dark';
+    if (wpm > 80) return 'bg-gradient-to-br from-red-900/20 via-base-dark to-orange-900/20'; // Overdrive
+    if (wpm > 40) return 'bg-gradient-to-br from-purple-900/20 via-base-dark to-blue-900/20'; // Flowing
+    return 'bg-base-dark'; // Calm
+  };
+
+  // Input Animation Variants
+  const inputVariants = {
+    shake: { x: [-10, 10, -10, 10, 0], borderColor: '#ef4444', transition: { duration: 0.3 } },
+    pulse: { scale: [1, 1.02, 1], borderColor: '#22c55e', boxShadow: '0 0 20px rgba(34,197,94,0.3)', transition: { duration: 0.1 } },
+    normal: { scale: 1, x: 0, borderColor: 'rgba(255,255,255,0.1)' }
+  };
+
+  // Initialize from location state if present (Ghost Mode)
+  useEffect(() => {
+    if (location.state?.mode === 'ghost') {
+      setMode('ghost');
+      setText(location.state.textContent);
+      setTextId(location.state.textId);
+      setOpponents([{
+        userId: 'ghost-bot',
+        username: location.state.ghostProfile.username,
+        wpm: location.state.ghostProfile.wpm,
+        accuracy: location.state.ghostProfile.accuracy,
+        currentIndex: 0,
+        isGhost: true
+      }]);
+    }
+  }, [location.state]);
+
+  // Ghost Bot Simulation
+  useEffect(() => {
+    let interval;
+    if (gameState === 'active' && mode === 'ghost' && startTime) {
+      const ghostWpm = location.state?.ghostProfile?.wpm || 60;
+      const charsPerMinute = ghostWpm * 5;
+      const charsPerSecond = charsPerMinute / 60;
+      
+      interval = setInterval(() => {
+        const elapsedSeconds = (Date.now() - startTime) / 1000;
+        const expectedChars = Math.floor(charsPerSecond * elapsedSeconds);
+        
+        setOpponents(prev => prev.map(op => {
+          if (op.isGhost) {
+            return {
+              ...op,
+              currentIndex: Math.min(expectedChars, text.length)
+            };
+          }
+          return op;
+        }));
+
+        if (expectedChars >= text.length) {
+          clearInterval(interval);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [gameState, mode, startTime, text.length, location.state]);
+
+  // Initialize AudioContext lazily
+  const getAudioContext = () => {
+    if (!audioContextRef.current) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          audioContextRef.current = new AudioContext();
+        }
+      } catch (e) {
+        console.error('Web Audio API not supported or failed to initialize', e);
+      }
+    }
+    // Resume if suspended (browser autoplay policy)
+    if (audioContextRef.current?.state === 'suspended') {
+      audioContextRef.current.resume().catch(console.error);
+    }
+    return audioContextRef.current;
+  };
 
   // Sound functions
   const playKeySound = () => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.2);
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.frequency.setValueAtTime(800 + (streak * 10), ctx.currentTime); // Pitch up with streak!
+      oscillator.frequency.setValueAtTime(600 + (streak * 10), ctx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.2);
+    } catch (e) {
+      console.error('Error playing key sound', e);
+    }
   };
 
   const playCompleteSound = () => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
-    oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1); // E5
-    oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2); // G5
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.5);
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    try {
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.frequency.setValueAtTime(523, ctx.currentTime);
+      oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+      oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      oscillator.start(ctx.currentTime);
+      oscillator.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      console.error('Error playing complete sound', e);
+    }
   };
 
   useEffect(() => {
@@ -70,7 +171,7 @@ const Play = () => {
     newSocket.on('race-matched', (data) => {
       setRaceId(data.raceId);
       setText(data.text);
-      setOpponents(data.participants.filter(p => p.userId !== user.id));
+      setOpponents(data.participants.filter(p => p.userId !== user?.id));
       setGameState('countdown');
       setTimeout(() => {
         setGameState('active');
@@ -86,11 +187,10 @@ const Play = () => {
 
     newSocket.on('race-results', (data) => {
       setGameState('completed');
-      // Handle results
     });
 
     return () => newSocket.disconnect();
-  }, [user.id]);
+  }, [user?.id]);
 
   const fetchHistory = async () => {
     try {
@@ -107,7 +207,6 @@ const Play = () => {
     }
   };
 
-  // Timer effect
   useEffect(() => {
     let interval = null;
     if (gameState === 'active' && timeLeft > 0) {
@@ -126,17 +225,15 @@ const Play = () => {
     return () => clearInterval(interval);
   }, [gameState, timeLeft]);
 
-  // WPM and accuracy calculation
   useEffect(() => {
     if (startTime && currentIndex > 0) {
-      const timeElapsed = (Date.now() - startTime) / 60000; // minutes
+      const timeElapsed = (Date.now() - startTime) / 60000;
       const calculatedWpm = Math.round((currentIndex / 5) / timeElapsed);
       const calculatedAccuracy = Math.round(((currentIndex - errors) / currentIndex) * 100);
       setWpm(calculatedWpm);
       setAccuracy(calculatedAccuracy);
 
-      // Emit progress for multiplayer
-      if (raceId && socket) {
+      if (raceId && socket && user) {
         socket.emit('race-progress', {
           raceId,
           userId: user.id,
@@ -148,12 +245,11 @@ const Play = () => {
     }
   }, [currentIndex, errors, startTime, raceId, socket, user.id]);
 
-  // Save results when race completes
   useEffect(() => {
     if (gameState === 'completed' && user) {
       if (mode === 'solo') {
         saveResults();
-      } else if (mode === 'quick-race' && raceId) {
+      } else if (mode === 'quick-race' && raceId && socket && user) {
         const timeTaken = 60 - timeLeft;
         socket.emit('race-finished', {
           raceId,
@@ -167,7 +263,20 @@ const Play = () => {
     }
   }, [gameState, mode, raceId, socket, user, wpm, accuracy, errors, timeLeft]);
 
+  useEffect(() => {
+    if (gameState === 'active') {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState]);
+
   const saveResults = async () => {
+    if (!user) {
+      console.log('No user logged in, skipping save results');
+      return;
+    }
     try {
       const timeTaken = 60 - timeLeft;
       await fetch(`${import.meta.env.VITE_API_BASE_URL}/races`, {
@@ -194,7 +303,11 @@ const Play = () => {
     setTimeLeft(duration);
     setWpm(0);
     setAccuracy(100);
-    setOpponents([]);
+    setStreak(0); // Reset streak
+    
+    if (mode !== 'ghost') {
+      setOpponents([]);
+    }
 
     if (mode === 'solo') {
       setLoading(true);
@@ -206,25 +319,41 @@ const Play = () => {
         setTextId(data.text._id);
         setGameState('active');
         setStartTime(Date.now());
-        inputRef.current.focus();
       } catch (err) {
         console.error(err);
         alert('Failed to load text. Please try again.');
       } finally {
         setLoading(false);
       }
+    } else if (mode === 'ghost') {
+      if (location.state?.ghostProfile) {
+        setOpponents([{
+          userId: 'ghost-bot',
+          username: location.state.ghostProfile.username,
+          wpm: location.state.ghostProfile.wpm,
+          accuracy: location.state.ghostProfile.accuracy,
+          currentIndex: 0,
+          isGhost: true
+        }]);
+      }
+      setGameState('active');
+      setStartTime(Date.now());
     } else if (mode === 'quick-race') {
-      socket.emit('join-queue', { userId: user.id });
+      if (user && socket) {
+        socket.emit('join-queue', { userId: user.id });
+      } else {
+        alert('Please log in to play multiplayer races');
+        return;
+      }
     } else if (mode === 'custom') {
       if (customText.trim().length < 10) {
         alert('Please enter at least 10 characters for custom text.');
         return;
       }
       setText(customText.trim());
-      setTextId(null); // No DB text
+      setTextId(null);
       setGameState('active');
       setStartTime(Date.now());
-      inputRef.current.focus();
     }
   };
 
@@ -235,17 +364,27 @@ const Play = () => {
     const lastChar = value.slice(-1);
 
     if (lastChar === text[currentIndex]) {
+      // Correct input
       playKeySound();
       setCurrentIndex(prev => prev + 1);
       setUserInput(value);
+      setStreak(prev => prev + 1);
+      
+      // Pulse effect on correct key
+      controls.start('pulse');
+
       if (currentIndex + 1 === text.length) {
         setGameState('completed');
         playCompleteSound();
       }
     } else if (value.length > userInput.length) {
+      // Wrong input
       setErrors(prev => prev + 1);
       setUserInput(value);
+      setStreak(0); // Reset streak
+      controls.start('shake'); // Shake effect
     } else {
+      // Backspace or other input
       setUserInput(value);
     }
   };
@@ -261,6 +400,7 @@ const Play = () => {
     setAccuracy(100);
     setRaceId(null);
     setOpponents([]);
+    setStreak(0);
   };
 
   const renderText = () => {
@@ -280,8 +420,25 @@ const Play = () => {
   };
 
   return (
-    <div className="min-h-screen bg-base-dark text-white">
-      <div className="pt-20 pb-12">
+    <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ${getAtmosphereClass()} text-white`}>
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute bottom-0 w-full h-[50vh] bg-retro-grid"></div>
+        {[...Array(20)].map((_, i) => (
+          <div 
+            key={i}
+            className="particle"
+            style={{
+              left: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 5}s`,
+              width: `${Math.random() * 10 + 2}px`,
+              height: `${Math.random() * 10 + 2}px`
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="pt-20 pb-12 relative z-10">
         <div className="max-w-4xl mx-auto px-6">
           {/* Header */}
           <motion.div
@@ -426,7 +583,7 @@ const Play = () => {
               {/* Stats Bar */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-                  <Zap className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+                  <Zap className={`w-6 h-6 mx-auto mb-2 ${streak > 10 ? 'text-yellow-300 animate-pulse' : 'text-yellow-400'}`} />
                   <div className="text-2xl font-bold">{wpm}</div>
                   <div className="text-sm text-gray-400">WPM</div>
                 </div>
@@ -442,8 +599,8 @@ const Play = () => {
                 </div>
                 <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
                   <Trophy className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{Math.round((currentIndex / text.length) * 100)}%</div>
-                  <div className="text-sm text-gray-400">Progress</div>
+                  <div className="text-2xl font-bold">{streak}</div>
+                  <div className="text-sm text-gray-400">Streak 🔥</div>
                 </div>
               </div>
 
@@ -492,13 +649,15 @@ const Play = () => {
                 <div className="text-lg md:text-xl leading-relaxed font-mono mb-6 min-h-[120px] md:min-h-[150px]">
                   {renderText()}
                 </div>
-                <input
+                <motion.input
                   ref={inputRef}
+                  variants={inputVariants}
+                  animate={controls}
                   type="text"
                   value={userInput}
                   onChange={handleInputChange}
                   disabled={gameState !== 'active'}
-                  className="w-full p-4 md:p-6 bg-base-navy/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 text-lg md:text-xl font-mono touch-manipulation"
+                  className="w-full p-4 md:p-6 bg-base-navy/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none text-lg md:text-xl font-mono touch-manipulation"
                   placeholder={gameState === 'active' ? "Start typing..." : "Race completed!"}
                   autoComplete="off"
                   autoCorrect="off"

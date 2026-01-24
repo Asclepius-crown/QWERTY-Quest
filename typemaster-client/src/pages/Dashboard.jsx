@@ -5,6 +5,7 @@ import { Trophy, Zap, Target, BarChart2, Play, Users, Settings, User, Skull, Zap
 import { startRegistration } from '@simplewebauthn/browser';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
+import NeuralHeatmap from '../components/NeuralHeatmap';
 
 const Dashboard = () => {
   const { user, updateAvatar } = useAuth();
@@ -14,10 +15,10 @@ const Dashboard = () => {
   const [mfaToken, setMfaToken] = useState('');
 
   const stats = [
-    { icon: Zap, label: 'WPM', value: '0', desc: 'Average Speed' },
-    { icon: Target, label: 'Accuracy', value: '0%', desc: 'Precision' },
-    { icon: Trophy, label: 'Rank', value: 'Unranked', desc: 'Current Position' },
-    { icon: BarChart2, label: 'Races', value: '0', desc: 'Completed' }
+    { icon: Zap, label: 'Avg WPM', value: user?.stats?.avgWPM || 0, desc: 'Average Speed' },
+    { icon: ZapIcon, label: 'Best WPM', value: user?.stats?.bestWPM || 0, desc: 'Personal Record' },
+    { icon: Trophy, label: 'Rank', value: user?.stats?.rank || 'Unranked', desc: 'Current Position' },
+    { icon: BarChart2, label: 'Races', value: user?.stats?.racesWon || 0, desc: 'Completed' }
   ];
 
   const avatars = [
@@ -36,7 +37,6 @@ const Dashboard = () => {
     const result = await updateAvatar(avatarId);
     if (!result.success) {
       setSelectedAvatar(oldAvatar);
-      // Could show error message
     }
   };
 
@@ -139,6 +139,16 @@ const Dashboard = () => {
                 <div className="text-xs text-gray-500 mt-1">{stat.desc}</div>
               </div>
             ))}
+          </motion.div>
+
+          {/* Neural Heatmap */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="mb-12"
+          >
+             <NeuralHeatmap />
           </motion.div>
 
           {/* Avatar Selection */}
@@ -277,20 +287,6 @@ const Dashboard = () => {
                   Create Room
                 </button>
               </div>
-            </div>
-          </motion.div>
-
-          {/* Coming Soon Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-center"
-          >
-            <div className="glass-card p-8 rounded-2xl border border-white/5 inline-block">
-              <Settings className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Advanced Analytics Coming Soon</h3>
-              <p className="text-gray-400">Detailed performance tracking, progress charts, and personalized insights.</p>
             </div>
           </motion.div>
         </div>

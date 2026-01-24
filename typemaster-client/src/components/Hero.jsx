@@ -1,10 +1,44 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Zap, Users, Trophy, Target, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, Users, Trophy, Target, ArrowRight, Crown, Sword, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
+  const [champion, setChampion] = useState(null);
+  const [feed, setFeed] = useState([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/races/leaderboard`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) {
+          setChampion(data[0]);
+          setFeed(data.slice(0, 10));
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  const handleDethrone = () => {
+    if (!champion) return;
+    navigate('/play', {
+      state: {
+        mode: 'ghost',
+        ghostProfile: {
+          username: champion.username,
+          wpm: champion.wpm,
+          accuracy: champion.accuracy,
+          avatar: champion.avatar
+        },
+        textId: champion.textId,
+        textContent: champion.textContent
+      }
+    });
+  };
+
   return (
-    <div className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden bg-base-dark">
+    <div className="relative min-h-screen flex flex-col pt-20 overflow-hidden bg-base-dark">
       {/* Background Effects */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-grid-pattern opacity-20 [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
@@ -12,142 +46,178 @@ const Hero = () => {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent-purple/20 rounded-full blur-[120px] mix-blend-screen"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10 w-full">
-        {/* Left Content */}
-        <div className="text-left space-y-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary-glow text-sm font-medium"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            4,239 players online now
-          </motion.div>
+      <div className="flex-grow flex items-center">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10 w-full">
+          {/* Left Content */}
+          <div className="text-left space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary-glow text-sm font-medium"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              4,239 players online now
+            </motion.div>
 
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold leading-tight"
-          >
-            Race against <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent-cyan text-glow">
-              the world.
-            </span>
-          </motion.h1>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-5xl md:text-7xl font-bold leading-tight"
+            >
+              Race against <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent-cyan text-glow">
+                the world.
+              </span>
+            </motion.h1>
 
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-gray-400 text-lg md:text-xl max-w-xl leading-relaxed"
-          >
-            Improve your typing speed, compete in real-time, track WPM & accuracy, and climb the global ranks.
-          </motion.p>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-gray-400 text-lg md:text-xl max-w-xl leading-relaxed"
+            >
+              Improve your typing speed, compete in real-time, track WPM & accuracy, and climb the global ranks.
+            </motion.p>
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4"
-          >
-            <button className="px-8 py-4 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all flex items-center justify-center gap-2 group">
-              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              Quick Race
-            </button>
-            <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold text-lg backdrop-blur-sm transition-all flex items-center justify-center gap-2">
-              <Users className="w-5 h-5" />
-              Create Room
-            </button>
-          </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <button 
+                onClick={() => navigate('/play')}
+                className="px-8 py-4 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all flex items-center justify-center gap-2 group"
+              >
+                <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                Quick Race
+              </button>
+              <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold text-lg backdrop-blur-sm transition-all flex items-center justify-center gap-2">
+                <Users className="w-5 h-5" />
+                Create Room
+              </button>
+            </motion.div>
 
-          {/* Mini Stats */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="flex gap-8 pt-8 border-t border-white/5"
-          >
-            <div>
-              <div className="text-2xl font-bold text-white">120+</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wider">Countries</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-white">1M+</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wider">Races Run</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-white">0.02s</div>
-              <div className="text-sm text-gray-500 uppercase tracking-wider">Matchmaking</div>
-            </div>
-          </motion.div>
-        </div>
+            {/* Mini Stats */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex gap-8 pt-8 border-t border-white/5"
+            >
+              <div>
+                <div className="text-2xl font-bold text-white">120+</div>
+                <div className="text-sm text-gray-500 uppercase tracking-wider">Countries</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">1M+</div>
+                <div className="text-sm text-gray-500 uppercase tracking-wider">Races Run</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white">0.02s</div>
+                <div className="text-sm text-gray-500 uppercase tracking-wider">Matchmaking</div>
+              </div>
+            </motion.div>
+          </div>
 
-        {/* Right Content - Floating Leaderboard */}
-        <div className="relative w-full lg:block mt-12 lg:mt-0">
-           {/* Abstract Decoration */}
-           <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-primary/30 to-accent-purple/30 rounded-full blur-3xl opacity-50 animate-pulse hidden lg:block"></div>
+          {/* Right Content - Throne Room Widget */}
+          <div className="relative w-full lg:block mt-12 lg:mt-0">
+             {/* Abstract Decoration */}
+             <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-primary/30 to-accent-purple/30 rounded-full blur-3xl opacity-50 animate-pulse hidden lg:block"></div>
 
-           <motion.div 
-             initial={{ opacity: 0, x: 50 }}
-             animate={{ opacity: 1, x: 0 }}
-             transition={{ duration: 0.8, delay: 0.4 }}
-             className="relative z-10"
-           >
-              {/* Main Card */}
-              <div className="glass-card rounded-2xl p-6 border-l-4 border-l-primary w-full max-w-md mx-auto lg:ml-auto lg:mr-0 transform lg:rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-yellow-500" />
-                    Live Leaderboard
-                  </h3>
-                  <span className="text-xs font-mono text-primary-glow animate-pulse">● LIVE</span>
-                </div>
-
-                <div className="space-y-4">
-                  {[
-                    { rank: 1, name: 'Cortex', wpm: 236, acc: 98, color: 'text-yellow-400' },
-                    { rank: 2, name: 'Phoenix', wpm: 204, acc: 96, color: 'text-gray-300' },
-                    { rank: 3, name: 'Vortex', wpm: 198, acc: 99, color: 'text-orange-400' },
-                    { rank: 4, name: 'You', wpm: 0, acc: 0, color: 'text-gray-500', isUser: true },
-                  ].map((player, idx) => (
-                    <div key={idx} className={`flex items-center justify-between p-3 rounded-lg ${player.isUser ? 'bg-primary/10 border border-primary/20' : 'bg-white/5 border border-transparent'}`}>
-                      <div className="flex items-center gap-3">
-                        <span className={`font-bold w-6 text-center ${player.color}`}>#{player.rank}</span>
-                        <div className="flex flex-col">
-                          <span className={`font-medium ${player.isUser ? 'text-primary' : 'text-white'}`}>{player.name}</span>
-                          {player.isUser && <span className="text-[10px] text-gray-400">Not Ranked</span>}
-                        </div>
+             <motion.div 
+               initial={{ opacity: 0, x: 50 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ duration: 0.8, delay: 0.4 }}
+               className="relative z-10"
+             >
+                {/* Main Card */}
+                {champion ? (
+                  <div className="glass-card rounded-2xl p-8 border border-yellow-500/30 w-full max-w-md mx-auto lg:ml-auto lg:mr-0 transform lg:rotate-[-2deg] hover:rotate-0 transition-transform duration-500 shadow-[0_0_50px_rgba(234,179,8,0.15)]">
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                         <div className="flex items-center gap-2 text-yellow-500 mb-1">
+                            <Crown className="w-5 h-5 fill-current" />
+                            <span className="font-bold tracking-widest text-xs uppercase">Current Champion</span>
+                         </div>
+                         <h3 className="text-3xl font-bold text-white">{champion.username}</h3>
                       </div>
-                      <div className="flex items-center gap-4 text-sm font-mono">
-                        <span className="text-white">{player.wpm} <span className="text-gray-500 text-xs">WPM</span></span>
-                        <span className={`${player.acc >= 98 ? 'text-green-400' : 'text-gray-400'}`}>{player.acc}%</span>
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 p-[2px]">
+                         <div className="w-full h-full rounded-full bg-base-dark flex items-center justify-center">
+                            <span className="text-2xl">👑</span>
+                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Floating Element 2 */}
-              <motion.div 
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="hidden md:flex absolute -bottom-10 -left-10 glass-card p-4 rounded-xl border border-white/10 items-center gap-3"
-              >
-                 <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-                    <Target className="w-5 h-5" />
-                 </div>
-                 <div>
-                   <div className="text-sm text-gray-400">Accuracy Streak</div>
-                   <div className="text-xl font-bold text-white">42 Matches</div>
-                 </div>
-              </motion.div>
-           </motion.div>
+                    <div className="grid grid-cols-2 gap-4 mb-8">
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                        <div className="text-gray-400 text-xs uppercase mb-1">Top Speed</div>
+                        <div className="text-3xl font-mono font-bold text-primary-glow">{champion.wpm}</div>
+                        <div className="text-xs text-gray-500">Words Per Min</div>
+                      </div>
+                      <div className="bg-white/5 rounded-xl p-4 border border-white/5">
+                        <div className="text-gray-400 text-xs uppercase mb-1">Accuracy</div>
+                        <div className="text-3xl font-mono font-bold text-green-400">{champion.accuracy}%</div>
+                        <div className="text-xs text-gray-500">Precision</div>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={handleDethrone}
+                      className="w-full py-4 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 group transition-all"
+                    >
+                      <Sword className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      Dethrone Champion
+                    </button>
+                    <p className="text-center text-xs text-gray-500 mt-4">
+                      Can you beat {champion.wpm} WPM? Prove it.
+                    </p>
+                  </div>
+                ) : (
+                  // Loading / Empty State
+                  <div className="glass-card rounded-2xl p-8 border border-white/10 w-full max-w-md mx-auto lg:ml-auto lg:mr-0">
+                    <div className="animate-pulse space-y-4">
+                       <div className="h-8 bg-white/10 rounded w-1/2"></div>
+                       <div className="h-32 bg-white/5 rounded"></div>
+                       <div className="h-12 bg-primary/20 rounded"></div>
+                    </div>
+                  </div>
+                )}
+             </motion.div>
+          </div>
         </div>
+      </div>
+
+      {/* Live Ticker Footer */}
+      <div className="h-12 bg-black/40 border-t border-white/5 flex items-center overflow-hidden relative z-20">
+         <div className="px-4 bg-primary/20 h-full flex items-center font-bold text-xs uppercase tracking-widest text-primary border-r border-white/10 z-10">
+            <TrendingUp className="w-4 h-4 mr-2" /> Live Feed
+         </div>
+         <div className="flex-1 overflow-hidden relative">
+            <motion.div 
+               animate={{ x: ["0%", "-100%"] }}
+               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+               className="flex items-center gap-12 whitespace-nowrap absolute top-1/2 -translate-y-1/2"
+            >
+               {[...feed, ...feed].map((item, idx) => (
+                 <div key={idx} className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span className="font-bold text-white">{item.username}</span>
+                    <span>just hit</span>
+                    <span className="text-primary font-mono font-bold">{item.wpm} WPM</span>
+                    <span className="text-xs opacity-50">on {item.textTitle}</span>
+                 </div>
+               ))}
+               {feed.length === 0 && (
+                 <span className="text-gray-500 italic">Waiting for new records...</span>
+               )}
+            </motion.div>
+         </div>
       </div>
     </div>
   );

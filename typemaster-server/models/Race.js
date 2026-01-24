@@ -12,7 +12,7 @@ const RaceSchema = new mongoose.Schema({
   text: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Text',
-    required: true
+    required: false
   },
   startTime: {
     type: Date,

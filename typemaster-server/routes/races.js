@@ -62,4 +62,77 @@ router.get('/history', auth, async (req, res) => {
   }
 });
 
+// GET /api/races/leaderboard - Get global leaderboard
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const leaderboard = await Race.aggregate([
+      // Unwind participants to treat each player in a race individually
+      { $unwind: '$participants' },
+      // Sort by WPM descending
+      { $sort: { 'participants.wpm': -1 } },
+      // Group by user to get their single best record
+      {
+        $group: {
+          _id: '$participants.userId',
+          wpm: { $first: '$participants.wpm' },
+          accuracy: { $first: '$participants.accuracy' },
+          textId: { $first: '$text' },
+          date: { $first: '$createdAt' }
+        }
+      },
+      // Lookup user details
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      // Unwind user array
+      { $unwind: '$user' },
+      // Lookup text details (so we know what they typed)
+      {
+        $lookup: {
+          from: 'texts',
+          localField: 'textId',
+          foreignField: '_id',
+          as: 'text'
+        }
+      },
+      // Unwind text array (preserve nulls if text was deleted/custom)
+      { 
+        $unwind: {
+          path: '$text',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Project final fields
+      {
+        $project: {
+          _id: 1, // userId
+          username: '$user.username',
+          avatar: '$user.avatar',
+          rank: '$user.stats.rank',
+          wpm: 1,
+          accuracy: 1,
+          textId: 1,
+          textTitle: { $ifNull: ['$text.category', 'Custom Text'] }, // Use category or default
+          textContent: '$text.content',
+          date: 1
+        }
+      },
+      // Sort final list by WPM again
+      { $sort: { wpm: -1 } },
+      // Limit to top 50
+      { $limit: 50 }
+    ]);
+
+    res.json(leaderboard);
+  } catch (err) {
+    console.error('Leaderboard error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
