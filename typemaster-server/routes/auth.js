@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
@@ -143,17 +144,26 @@ router.post('/logout', (req, res) => {
 // Get current user
 router.get('/me', auth, async (req, res) => {
   try {
-    console.log('Getting user info for:', req.user.id);
+    console.log('GET /me - Processing for user:', req.user);
     if (!req.user || !req.user.id) {
-      return res.status(401).json({ error: 'User not authenticated' });
+       console.log('GET /me - User ID missing in request');
+       return res.status(401).json({ error: 'User not authenticated' });
     }
+
+    if (!mongoose.Types.ObjectId.isValid(req.user.id)) {
+        console.log('GET /me - Invalid ObjectId:', req.user.id);
+        return res.status(400).json({ error: 'Invalid User ID' });
+    }
+
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
+      console.log('GET /me - User not found in DB');
       return res.status(404).json({ error: 'User not found' });
     }
+    console.log('GET /me - User found, sending response');
     res.json(user);
   } catch (err) {
-    console.error('Error in /me:', err.message);
+    console.error('Error in /me:', err);
     res.status(500).send('Server Error');
   }
 });
