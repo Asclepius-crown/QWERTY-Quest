@@ -27,9 +27,10 @@ export const AuthProvider = ({ children }) => {
       });
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData.user);
+        setUser(userData);
         setIsLoggedIn(true);
       } else {
+        console.log('Auth check failed:', response.status);
         setIsLoggedIn(false);
         setUser(null);
       }
@@ -118,12 +119,14 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include',
         body: JSON.stringify({ avatar })
       });
+
       if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser);
+        const userData = await response.json();
+        setUser(userData);
         return { success: true };
       } else {
-        return { success: false, error: 'Failed to update avatar' };
+        const errorData = await response.json();
+        return { success: false, error: errorData.error || 'Avatar update failed' };
       }
     } catch (error) {
       return { success: false, error: 'Network error' };

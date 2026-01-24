@@ -1,0 +1,34 @@
+const mongoose = require('mongoose');
+
+const RaceSchema = new mongoose.Schema({
+  participants: [{
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    wpm: Number,
+    accuracy: Number,
+    errors: Number,
+    timeTaken: Number, // seconds
+    completedAt: Date
+  }],
+  text: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Text',
+    required: true
+  },
+  startTime: {
+    type: Date,
+    default: Date.now
+  },
+  endTime: Date,
+  winner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  type: {
+    type: String,
+    enum: ['solo', 'multiplayer'],
+    default: 'solo'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model('Race', RaceSchema);

@@ -135,10 +135,17 @@ router.post('/logout', (req, res) => {
 // Get current user
 router.get('/me', auth, async (req, res) => {
   try {
+    console.log('Getting user info for:', req.user.id);
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
     const user = await User.findById(req.user.id).select('-password');
-    res.json({ user });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
   } catch (err) {
-    console.error(err.message);
+    console.error('Error in /me:', err.message);
     res.status(500).send('Server Error');
   }
 });
