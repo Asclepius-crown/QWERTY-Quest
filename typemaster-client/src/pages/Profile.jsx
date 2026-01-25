@@ -96,8 +96,14 @@ const Profile = () => {
                 {/* Identity */}
                 <div className="flex-1 mb-2">
                     <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                        <h1 className="text-4xl font-bold text-base-content">{user?.username || 'Player'}</h1>
-                        <span className="px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-full text-xs font-bold uppercase tracking-wider">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-4xl font-bold text-base-content">{user?.username || 'Player'}</h1>
+                            <div className="px-2 py-1 bg-base-content/5 border border-base-content/10 rounded font-mono text-sm text-primary-glow flex items-center gap-2">
+                                <span className="text-[10px] text-base-muted uppercase font-sans tracking-widest">Net-ID</span>
+                                {user?.netId || '###-###'}
+                            </div>
+                        </div>
+                        <span className="px-3 py-1 bg-primary/20 text-primary border border-primary/20 rounded-full text-xs font-bold uppercase tracking-wider w-fit">
                             Precision Specialist
                         </span>
                     </div>

@@ -94,7 +94,7 @@ const Network = () => {
              {center ? user?.username : friend.username}
            </span>
            
-           <span className="text-[9px] font-mono text-base-muted/50 -mt-0.5">
+           <span className={`text-[9px] font-mono -mt-0.5 ${center ? 'text-primary' : 'text-base-muted/50'}`}>
              {center ? user?.netId : friend?.netId || '###-###'}
            </span>
            

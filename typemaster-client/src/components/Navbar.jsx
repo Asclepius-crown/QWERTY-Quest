@@ -143,6 +143,9 @@ const Navbar = () => {
                             </div>
                             <div className="flex-1">
                                 <h3 className="text-lg font-bold text-base-content leading-none mb-1">{user?.username}</h3>
+                                <div className="text-[10px] font-mono text-primary mb-2 flex items-center gap-1">
+                                    <span className="text-base-muted">Net-ID:</span> {user?.netId}
+                                </div>
                                 <div className="flex items-center gap-2 mb-2">
                                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
                                     {stats.rank}
