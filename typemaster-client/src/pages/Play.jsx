@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard, Sword } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useSettings } from '../contexts/SettingsContext';
 import { useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
+import Navbar from '../components/Navbar';
 
 const Play = () => {
   const { user } = useAuth();
+  const { settings } = useSettings();
   const location = useLocation();
   const controls = useAnimation();
   
@@ -30,27 +33,26 @@ const Play = () => {
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [loading, setLoading] = useState(false);
-  const [streak, setStreak] = useState(0); // New: Combo Streak
+  const [streak, setStreak] = useState(0);
 
   const inputRef = useRef(null);
   const audioContextRef = useRef(null);
 
-  // Determine Atmosphere based on WPM
   const getAtmosphereClass = () => {
     if (gameState !== 'active') return 'bg-base-dark';
-    if (wpm > 80) return 'bg-gradient-to-br from-red-900/20 via-base-dark to-orange-900/20'; // Overdrive
-    if (wpm > 40) return 'bg-gradient-to-br from-purple-900/20 via-base-dark to-blue-900/20'; // Flowing
-    return 'bg-base-dark'; // Calm
+    if (!settings.backgroundAnimations) return 'bg-base-dark';
+    
+    if (wpm > 80) return 'bg-gradient-to-br from-red-900/20 via-base-dark to-orange-900/20';
+    if (wpm > 40) return 'bg-gradient-to-br from-purple-900/20 via-base-dark to-blue-900/20';
+    return 'bg-base-dark';
   };
 
-  // Input Animation Variants
   const inputVariants = {
     shake: { x: [-10, 10, -10, 10, 0], borderColor: '#ef4444', transition: { duration: 0.3 } },
     pulse: { scale: [1, 1.02, 1], borderColor: '#22c55e', boxShadow: '0 0 20px rgba(34,197,94,0.3)', transition: { duration: 0.1 } },
     normal: { scale: 1, x: 0, borderColor: 'rgba(255,255,255,0.1)' }
   };
 
-  // Initialize from location state if present (Ghost Mode)
   useEffect(() => {
     if (location.state?.mode === 'ghost') {
       setMode('ghost');
@@ -67,7 +69,6 @@ const Play = () => {
     }
   }, [location.state]);
 
-  // Ghost Bot Simulation
   useEffect(() => {
     let interval;
     if (gameState === 'active' && mode === 'ghost' && startTime) {
@@ -97,7 +98,6 @@ const Play = () => {
     return () => clearInterval(interval);
   }, [gameState, mode, startTime, text.length, location.state]);
 
-  // Initialize AudioContext lazily
   const getAudioContext = () => {
     if (!audioContextRef.current) {
       try {
@@ -106,18 +106,17 @@ const Play = () => {
           audioContextRef.current = new AudioContext();
         }
       } catch (e) {
-        console.error('Web Audio API not supported or failed to initialize', e);
+        console.error('Web Audio API not supported', e);
       }
     }
-    // Resume if suspended (browser autoplay policy)
     if (audioContextRef.current?.state === 'suspended') {
       audioContextRef.current.resume().catch(console.error);
     }
     return audioContextRef.current;
   };
 
-  // Sound functions
   const playKeySound = () => {
+    if (!settings.keystrokeSounds) return;
     const ctx = getAudioContext();
     if (!ctx) return;
 
@@ -126,10 +125,13 @@ const Play = () => {
       const gainNode = ctx.createGain();
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
-      oscillator.frequency.setValueAtTime(800 + (streak * 10), ctx.currentTime); // Pitch up with streak!
+      oscillator.frequency.setValueAtTime(800 + (streak * 10), ctx.currentTime);
       oscillator.frequency.setValueAtTime(600 + (streak * 10), ctx.currentTime + 0.1);
-      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      
+      const volume = (settings.sfxVolume / 100) * 0.1;
+      gainNode.gain.setValueAtTime(volume, ctx.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+      
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.2);
     } catch (e) {
@@ -138,6 +140,7 @@ const Play = () => {
   };
 
   const playCompleteSound = () => {
+    if (!settings.musicEnabled) return; // Using musicEnabled for victory sound as generic audio toggle
     const ctx = getAudioContext();
     if (!ctx) return;
 
@@ -149,8 +152,11 @@ const Play = () => {
       oscillator.frequency.setValueAtTime(523, ctx.currentTime);
       oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
       oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
-      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      
+      const volume = (settings.sfxVolume / 100) * 0.1;
+      gainNode.gain.setValueAtTime(volume, ctx.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.5);
     } catch (e) {
@@ -173,10 +179,11 @@ const Play = () => {
       setText(data.text);
       setOpponents(data.participants.filter(p => p.userId !== user?.id));
       setGameState('countdown');
+      const countdownMs = parseInt(settings.countdownLength) * 1000 || 3000;
       setTimeout(() => {
         setGameState('active');
         setStartTime(Date.now());
-      }, data.startTime - Date.now());
+      }, data.startTime - Date.now()); // Using server time diff, but could override for local practice
     });
 
     newSocket.on('opponent-progress', (data) => {
@@ -190,7 +197,7 @@ const Play = () => {
     });
 
     return () => newSocket.disconnect();
-  }, [user?.id]);
+  }, [user?.id, settings.countdownLength]);
 
   const fetchHistory = async () => {
     try {
@@ -274,7 +281,6 @@ const Play = () => {
 
   const saveResults = async () => {
     if (!user) {
-      console.log('No user logged in, skipping save results');
       return;
     }
     try {
@@ -303,7 +309,7 @@ const Play = () => {
     setTimeLeft(duration);
     setWpm(0);
     setAccuracy(100);
-    setStreak(0); // Reset streak
+    setStreak(0);
     
     if (mode !== 'ghost') {
       setOpponents([]);
@@ -364,27 +370,30 @@ const Play = () => {
     const lastChar = value.slice(-1);
 
     if (lastChar === text[currentIndex]) {
-      // Correct input
       playKeySound();
       setCurrentIndex(prev => prev + 1);
       setUserInput(value);
       setStreak(prev => prev + 1);
       
-      // Pulse effect on correct key
-      controls.start('pulse');
+      if (settings.caretAnimation) {
+        controls.start('pulse');
+      }
 
       if (currentIndex + 1 === text.length) {
         setGameState('completed');
         playCompleteSound();
       }
     } else if (value.length > userInput.length) {
-      // Wrong input
+      if (settings.errorSounds) {
+        // We could add a specific error sound here, currently only visual
+      }
       setErrors(prev => prev + 1);
       setUserInput(value);
-      setStreak(0); // Reset streak
-      controls.start('shake'); // Shake effect
+      setStreak(0);
+      if (settings.caretAnimation) {
+        controls.start('shake');
+      }
     } else {
-      // Backspace or other input
       setUserInput(value);
     }
   };
@@ -411,8 +420,13 @@ const Play = () => {
       } else if (index === currentIndex) {
         className = 'bg-primary/50 text-white';
       }
+      
+      if (settings.highlightMistakes && index < userInput.length && userInput[index] !== char) {
+         className = 'text-red-500 bg-red-900/20'; // Enhanced error highlight
+      }
+
       return (
-        <span key={index} className={className}>
+        <span key={index} className={className} style={{ fontSize: settings.fontSize === 'Large' ? '1.5rem' : '1.25rem', fontFamily: settings.fontFamily }}>
           {char}
         </span>
       );
@@ -421,22 +435,25 @@ const Play = () => {
 
   return (
     <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ${getAtmosphereClass()} text-white`}>
+      <Navbar />
       {/* Background Effects */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute bottom-0 w-full h-[50vh] bg-retro-grid"></div>
-        {[...Array(20)].map((_, i) => (
-          <div 
-            key={i}
-            className="particle"
-            style={{
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              width: `${Math.random() * 10 + 2}px`,
-              height: `${Math.random() * 10 + 2}px`
-            }}
-          />
-        ))}
-      </div>
+      {settings.backgroundAnimations && (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute bottom-0 w-full h-[50vh] bg-retro-grid"></div>
+          {[...Array(20)].map((_, i) => (
+            <div 
+              key={i}
+              className="particle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                width: `${Math.random() * 10 + 2}px`,
+                height: `${Math.random() * 10 + 2}px`
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="pt-20 pb-12 relative z-10">
         <div className="max-w-4xl mx-auto px-6">
@@ -583,7 +600,7 @@ const Play = () => {
               {/* Stats Bar */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-                  <Zap className={`w-6 h-6 mx-auto mb-2 ${streak > 10 ? 'text-yellow-300 animate-pulse' : 'text-yellow-400'}`} />
+                  <Zap className={`w-6 h-6 text-yellow-400 mx-auto mb-2`} />
                   <div className="text-2xl font-bold">{wpm}</div>
                   <div className="text-sm text-gray-400">WPM</div>
                 </div>
@@ -599,13 +616,13 @@ const Play = () => {
                 </div>
                 <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
                   <Trophy className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold">{streak}</div>
-                  <div className="text-sm text-gray-400">Streak 🔥</div>
+                  <div className="text-2xl font-bold">{Math.round((currentIndex / text.length) * 100)}%</div>
+                  <div className="text-sm text-gray-400">Progress</div>
                 </div>
               </div>
 
               {/* Opponents */}
-              {opponents.length > 0 && (
+              {opponents.length > 0 && settings.liveWpm && ( // Respect liveWpm setting
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {opponents.map((opponent, idx) => (
                     <div key={opponent.userId} className="glass-card p-4 rounded-xl border border-white/5">

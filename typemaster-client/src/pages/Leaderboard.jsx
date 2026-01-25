@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Medal, Crown, Zap, Target, User, Sword, ChevronDown, ChevronUp, BarChart2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import Navbar from '../components/Navbar';
 
 const Leaderboard = () => {
   const { user } = useAuth();
@@ -128,6 +129,7 @@ const Leaderboard = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-base-dark text-white pt-24 pb-12 px-4">
+      <Navbar />
       {/* Background Effects */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-hex-mesh opacity-30"></div>

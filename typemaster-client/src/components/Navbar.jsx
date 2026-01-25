@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Keyboard, Menu, X, LogOut, ChevronDown, User, Skull, Zap, Crown, Star, Ghost, Flame, Activity, Shield, Settings, BarChart2, Eye, EyeOff } from 'lucide-react';
+import { 
+  Keyboard, Menu, X, LogOut, ChevronDown, User, Skull, Zap, Crown, Star, Ghost, Flame, 
+  Activity, Shield, Settings, BarChart2, Eye, EyeOff, UserCircle, LayoutDashboard, 
+  Trophy, Target, History, Palette, Bell, Users as UsersIcon, HelpCircle, Bug 
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -44,6 +48,27 @@ const Navbar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [profileOpen]);
+
+  const MenuLink = ({ to, icon: Icon, label, onClick }) => (
+    <Link 
+      to={to} 
+      onClick={onClick}
+      className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all group"
+    >
+      <Icon className="w-4 h-4 text-gray-500 group-hover:text-primary transition-colors" />
+      <span>{label}</span>
+    </Link>
+  );
+
+  const MenuButton = ({ icon: Icon, label, onClick, danger = false }) => (
+    <button 
+      onClick={onClick}
+      className={`flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-all group text-left ${danger ? 'text-red-400 hover:bg-red-500/10' : 'text-gray-300 hover:text-white hover:bg-white/5'}`}
+    >
+      <Icon className={`w-4 h-4 transition-colors ${danger ? 'text-red-400' : 'text-gray-500 group-hover:text-primary'}`} />
+      <span>{label}</span>
+    </button>
+  );
 
   return (
     <nav 
@@ -105,86 +130,72 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-3 w-72 bg-[#0F172A] border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] overflow-hidden z-50 ring-1 ring-white/5"
+                    className="absolute right-0 mt-3 w-80 bg-[#0F172A]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden z-50 ring-1 ring-white/5"
                   >
-                    {/* Holographic Header */}
-                    <div className="p-5 bg-gradient-to-br from-white/5 to-transparent relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[50px] rounded-full -mr-10 -mt-10"></div>
+                    {/* Zone 1: Player Snapshot */}
+                    <div className="p-5 bg-gradient-to-br from-white/5 to-transparent border-b border-white/5 relative">
+                        {/* Glow Effect */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[50px] rounded-full pointer-events-none"></div>
                         
                         <div className="flex items-center gap-4 relative z-10">
-                            <div className={`w-14 h-14 rounded-xl ${currentAvatar.bg} flex items-center justify-center border border-white/10 shadow-inner`}>
+                            <div className={`w-14 h-14 rounded-xl ${currentAvatar.bg} flex items-center justify-center border border-white/10 shadow-lg`}>
                                 <AvatarIcon className={`w-7 h-7 ${currentAvatar.color}`} />
                             </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-white">{user?.username}</h3>
-                                <div className="text-xs text-gray-400 font-mono flex items-center gap-1">
-                                    <Shield className="w-3 h-3 text-primary" /> {stats.rank} Division
+                            <div className="flex-1">
+                                <h3 className="text-lg font-bold text-white leading-none mb-1">{user?.username}</h3>
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                                    {stats.rank}
+                                  </span>
+                                  <span className="text-[10px] text-gray-400">
+                                    {status === 'online' ? '● Online' : '○ Stealth'}
+                                  </span>
+                                </div>
+                                {/* XP Bar */}
+                                <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-primary to-purple-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" 
+                                        style={{ width: `${xpProgress}%` }}
+                                    ></div>
+                                </div>
+                                <div className="flex justify-between text-[9px] text-gray-500 mt-1 font-mono">
+                                  <span>{Math.floor(stats.xp)} XP</span>
+                                  <span>{nextLevelXp} XP</span>
                                 </div>
                             </div>
                         </div>
-
-                        {/* XP Bar */}
-                        <div className="mt-4 relative z-10">
-                            <div className="flex justify-between text-[10px] text-gray-400 uppercase tracking-wider mb-1">
-                                <span>XP Progress</span>
-                                <span>{Math.floor(stats.xp)} / {nextLevelXp}</span>
-                            </div>
-                            <div className="w-full h-1.5 bg-black/50 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-gradient-to-r from-primary to-purple-500" 
-                                    style={{ width: `${xpProgress}%` }}
-                                ></div>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 border-y border-white/5 divide-x divide-white/5 bg-black/20">
-                        <div className="p-3 text-center hover:bg-white/5 transition-colors">
-                            <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Best WPM</div>
-                            <div className="text-xl font-bold text-white font-mono">{stats.bestWPM}</div>
-                        </div>
-                        <div className="p-3 text-center hover:bg-white/5 transition-colors">
-                            <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Avg WPM</div>
-                            <div className="text-xl font-bold text-white font-mono">{stats.avgWPM}</div>
-                        </div>
-                    </div>
+                    <div className="p-2">
+                      {/* Zone 2: Core Player Actions */}
+                      <div className="mb-2">
+                        <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Menu</div>
+                        <MenuLink to="/dashboard" icon={UserCircle} label="My Profile" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/leaderboard" icon={Trophy} label="My Rank" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/practice" icon={Target} label="Practice Mode" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/dashboard" icon={History} label="Match History" onClick={() => setProfileOpen(false)} />
+                      </div>
 
-                    {/* Quick Actions */}
-                    <div className="p-2 space-y-1">
-                        <Link 
-                            to="/dashboard" 
-                            onClick={() => setProfileOpen(false)}
-                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                        >
-                            <Activity className="w-4 h-4 text-blue-400" /> Dashboard
-                        </Link>
-                        
-                        <button 
-                            onClick={() => setStatus(status === 'online' ? 'stealth' : 'online')}
-                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors group"
-                        >
-                            {status === 'online' ? (
-                                <>
-                                    <Eye className="w-4 h-4 text-green-400 group-hover:text-green-300" /> 
-                                    <span>Set Status: <span className="text-green-400">Online</span></span>
-                                </>
-                            ) : (
-                                <>
-                                    <EyeOff className="w-4 h-4 text-gray-500" /> 
-                                    <span>Set Status: <span className="text-gray-500">Stealth</span></span>
-                                </>
-                            )}
-                        </button>
+                      <div className="h-px bg-white/5 my-1 mx-2"></div>
 
-                        <div className="h-px bg-white/5 my-1 mx-2"></div>
+                      {/* Zone 3: Account & System */}
+                      <div className="mb-2">
+                        <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-widest">System</div>
+                        <MenuLink to="/settings" icon={Settings} label="Settings" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/settings" icon={Palette} label="Customize" onClick={() => setProfileOpen(false)} />
+                        <MenuButton icon={Bell} label="Notifications" onClick={() => {}} />
+                        <MenuButton icon={UsersIcon} label="Friends" onClick={() => {}} />
+                      </div>
 
-                        <button
-                            onClick={() => { logout(); setProfileOpen(false); }}
-                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                        >
-                            <LogOut className="w-4 h-4" /> Disconnect
-                        </button>
+                      <div className="h-px bg-white/5 my-1 mx-2"></div>
+
+                      {/* Zone 4: Session & Support */}
+                      <div>
+                        <MenuLink to="/how-it-works" icon={HelpCircle} label="Help / How it works" onClick={() => setProfileOpen(false)} />
+                        <MenuButton icon={Bug} label="Report a bug" onClick={() => {}} />
+                        <MenuButton icon={LogOut} label="Logout" danger onClick={() => { logout(); setProfileOpen(false); }} />
+                      </div>
                     </div>
                   </motion.div>
                 )}
