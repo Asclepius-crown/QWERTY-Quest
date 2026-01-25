@@ -279,25 +279,31 @@ const Profile = () => {
                                 <span className="text-xs px-2 py-1 rounded bg-base-content/5 text-base-muted border border-base-content/10">Accuracy</span>
                                 </div>
                             </div>
-                            <div className="h-64 w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={chartData}>
-                                    <defs>
-                                    <linearGradient id="colorWpm" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                                    </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                                    <XAxis dataKey="name" hide />
-                                    <YAxis stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip 
-                                    contentStyle={{ backgroundColor: '#0F172A', borderColor: '#334155', borderRadius: '8px' }}
-                                    itemStyle={{ color: '#fff' }}
-                                    />
-                                    <Area type="monotone" dataKey="wpm" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorWpm)" />
-                                </AreaChart>
-                                </ResponsiveContainer>
+                            <div className="h-64 w-full min-h-[250px]">
+                                {history.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={chartData}>
+                                            <defs>
+                                            <linearGradient id="colorWpm" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                                            </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                            <XAxis dataKey="name" hide />
+                                            <YAxis stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} />
+                                            <Tooltip 
+                                            contentStyle={{ backgroundColor: '#0F172A', borderColor: '#334155', borderRadius: '8px' }}
+                                            itemStyle={{ color: '#fff' }}
+                                            />
+                                            <Area type="monotone" dataKey="wpm" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorWpm)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="h-full w-full flex items-center justify-center text-base-muted italic border border-dashed border-base-content/10 rounded-xl">
+                                        Insufficient data to generate performance graph.
+                                    </div>
+                                )}
                             </div>
                         </div>
 

@@ -13,6 +13,13 @@ const Play = () => {
   const location = useLocation();
   const controls = useAnimation();
   
+  // I.C.E. Protocol Modifiers
+  const modifiers = location.state?.modifiers || [];
+  const isDim = modifiers.includes('dim');
+  const isFog = modifiers.includes('fog');
+  const isNoBackspace = modifiers.includes('no_backspace');
+  const isPermadeath = modifiers.includes('permadeath');
+
   const [mode, setMode] = useState(location.state?.mode || 'solo');
   const [difficulty, setDifficulty] = useState('medium');
   const [duration, setDuration] = useState(60);
@@ -363,10 +370,23 @@ const Play = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (isNoBackspace && e.key === 'Backspace') {
+      e.preventDefault();
+      controls.start('shake');
+    }
+  };
+
   const handleInputChange = (e) => {
     if (gameState !== 'active') return;
 
     const value = e.target.value;
+    
+    // Prevent deletion if no_backspace is active (for non-keyboard events)
+    if (isNoBackspace && value.length < userInput.length) {
+        return; 
+    }
+
     const lastChar = value.slice(-1);
 
     if (lastChar === text[currentIndex]) {
@@ -387,7 +407,16 @@ const Play = () => {
       if (settings.errorSounds) {
         // We could add a specific error sound here, currently only visual
       }
-      setErrors(prev => prev + 1);
+      
+      const newErrors = errors + 1;
+      setErrors(newErrors);
+      
+      if (isPermadeath && newErrors >= 3) {
+          setGameState('completed'); // Or failed state if supported
+          alert('SYSTEM FAILURE: Permadeath Protocol Triggered (3 Errors).');
+          return;
+      }
+
       setUserInput(value);
       setStreak(0);
       if (settings.caretAnimation) {
@@ -425,6 +454,11 @@ const Play = () => {
          className = 'text-red-500 bg-red-900/20'; // Enhanced error highlight
       }
 
+      // Fog Modifier
+      if (isFog && index > currentIndex + 8) {
+          className += ' blur-[4px] opacity-50 transition-all duration-300';
+      }
+
       return (
         <span key={index} className={className} style={{ fontSize: settings.fontSize === 'Large' ? '1.5rem' : '1.25rem', fontFamily: settings.fontFamily }}>
           {char}
@@ -434,7 +468,7 @@ const Play = () => {
   };
 
   return (
-    <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ${getAtmosphereClass()} text-base-content`}>
+    <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ${getAtmosphereClass()} text-base-content ${isDim ? 'opacity-80 saturate-50' : ''}`}>
       <Navbar />
       {/* Background Effects */}
       {settings.backgroundAnimations && (
@@ -464,7 +498,11 @@ const Play = () => {
             className="text-center mb-8"
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Start Your <span className="text-primary-glow">Typing Race</span>
+              {location.state?.mode === 'ranked' ? (
+                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">I.C.E. BREACH IN PROGRESS</span>
+              ) : (
+                 <>Start Your <span className="text-primary-glow">Typing Race</span></>
+              )}
             </h1>
             <p className="text-base-muted text-lg">Test your speed and accuracy against the clock</p>
           </motion.div>
@@ -670,6 +708,7 @@ const Play = () => {
                   ref={inputRef}
                   variants={inputVariants}
                   animate={controls}
+                  onKeyDown={handleKeyDown}
                   type="text"
                   value={userInput}
                   onChange={handleInputChange}
