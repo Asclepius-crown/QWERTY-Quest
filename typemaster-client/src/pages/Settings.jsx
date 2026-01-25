@@ -35,8 +35,8 @@ const Settings = () => {
 
   const SectionTitle = ({ title, desc }) => (
     <div className="mb-6">
-      <h2 className="text-2xl font-bold text-white mb-1">{title}</h2>
-      <p className="text-gray-400 text-sm">{desc}</p>
+      <h2 className="text-2xl font-bold text-base-content mb-1">{title}</h2>
+      <p className="text-base-muted text-sm">{desc}</p>
     </div>
   );
 
@@ -51,7 +51,7 @@ const Settings = () => {
     <div className="flex items-center justify-between py-3">
       <div>
         <div className="font-medium text-gray-200">{label}</div>
-        <div className="text-xs text-gray-500">{desc}</div>
+        <div className="text-xs text-base-muted">{desc}</div>
       </div>
       <button 
         onClick={() => onChange(!checked)}
@@ -64,23 +64,23 @@ const Settings = () => {
 
   const Input = ({ label, value, type = "text", placeholder }) => (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-400 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-base-muted mb-1">{label}</label>
       <input 
         type={type} 
         defaultValue={value} 
         placeholder={placeholder}
-        className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+        className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
       />
     </div>
   );
 
   const Select = ({ label, options, value, onChange }) => (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-400 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-base-muted mb-1">{label}</label>
       <select 
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-black/20 border border-white/10 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+        className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
       >
         {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
       </select>
@@ -90,7 +90,7 @@ const Settings = () => {
   const Slider = ({ label, value, onChange }) => (
     <div className="mb-6">
       <div className="flex justify-between mb-2">
-        <label className="text-sm font-medium text-gray-400">{label}</label>
+        <label className="text-sm font-medium text-base-muted">{label}</label>
         <span className="text-sm text-primary font-mono">{value}%</span>
       </div>
       <input 
@@ -112,12 +112,12 @@ const Settings = () => {
       
       <SettingCard title="Public Profile">
         <div className="flex items-start gap-6 mb-6">
-          <div className="w-24 h-24 rounded-2xl bg-base-navy border-2 border-white/10 flex items-center justify-center">
-            <User className="w-10 h-10 text-gray-400" />
+          <div className="w-24 h-24 rounded-2xl bg-base-navy border-2 border-base-content/10 flex items-center justify-center">
+            <User className="w-10 h-10 text-base-muted" />
           </div>
           <div className="flex-1">
             <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-bold transition-all mb-2">Upload New Avatar</button>
-            <p className="text-xs text-gray-500">JPG, GIF or PNG. Max size 2MB.</p>
+            <p className="text-xs text-base-muted">JPG, GIF or PNG. Max size 2MB.</p>
           </div>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
@@ -144,10 +144,10 @@ const Settings = () => {
       <SettingCard title="Password">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <div className="font-bold text-white">Change Password</div>
-            <div className="text-xs text-gray-500">Last changed 3 months ago</div>
+            <div className="font-bold text-base-content">Change Password</div>
+            <div className="text-xs text-base-muted">Last changed 3 months ago</div>
           </div>
-          <button className="px-4 py-2 border border-white/10 hover:bg-white/5 rounded-lg text-sm transition-all">Update</button>
+          <button className="px-4 py-2 border border-base-content/10 hover:bg-base-content/5 rounded-lg text-sm transition-all">Update</button>
         </div>
       </SettingCard>
 
@@ -157,8 +157,8 @@ const Settings = () => {
             <Shield className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <div className="font-bold text-white">Authenticator App</div>
-            <div className="text-xs text-gray-500">Secure your account with TOTP (Google Auth, Authy).</div>
+            <div className="font-bold text-base-content">Authenticator App</div>
+            <div className="text-xs text-base-muted">Secure your account with TOTP (Google Auth, Authy).</div>
           </div>
           <button className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-bold transition-all">Enable</button>
         </div>
@@ -166,11 +166,11 @@ const Settings = () => {
 
       <SettingCard title="Active Sessions">
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-base-content/5 rounded-lg">
             <div className="flex items-center gap-3">
-              <Monitor className="w-5 h-5 text-gray-400" />
+              <Monitor className="w-5 h-5 text-base-muted" />
               <div>
-                <div className="text-sm font-bold text-white">Windows PC (Chrome)</div>
+                <div className="text-sm font-bold text-base-content">Windows PC (Chrome)</div>
                 <div className="text-xs text-green-400">● Active now • New York, USA</div>
               </div>
             </div>
@@ -301,8 +301,8 @@ const Settings = () => {
               onClick={() => updateSettings({ theme })}
               className={`p-2 rounded-lg border text-sm transition-all ${
                 settings.theme === theme 
-                ? 'border-primary bg-primary/20 text-white shadow-md' 
-                : 'border-white/10 bg-white/5 text-gray-400 hover:bg-white/10'
+                ? 'border-primary bg-primary/20 text-base-content shadow-md' 
+                : 'border-base-content/10 bg-base-content/5 text-base-muted hover:bg-white/10'
               }`}
             >
               {theme}
@@ -389,10 +389,10 @@ const Settings = () => {
       <SettingCard title="Data Management">
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-bold text-white">Export Data</div>
-            <div className="text-xs text-gray-500">Download a copy of your race history.</div>
+            <div className="font-bold text-base-content">Export Data</div>
+            <div className="text-xs text-base-muted">Download a copy of your race history.</div>
           </div>
-          <button className="px-4 py-2 border border-white/10 hover:bg-white/5 rounded-lg text-sm transition-all flex items-center gap-2">
+          <button className="px-4 py-2 border border-base-content/10 hover:bg-base-content/5 rounded-lg text-sm transition-all flex items-center gap-2">
             <Download className="w-4 h-4" /> Download JSON
           </button>
         </div>
@@ -414,17 +414,17 @@ const Settings = () => {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <div className="font-bold text-white">Clear Local Cache</div>
-              <div className="text-xs text-gray-500">Fixes loading issues.</div>
+              <div className="font-bold text-base-content">Clear Local Cache</div>
+              <div className="text-xs text-base-muted">Fixes loading issues.</div>
             </div>
-            <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm">Clear</button>
+            <button className="px-4 py-2 bg-base-content/5 hover:bg-white/10 rounded-lg text-sm">Clear</button>
           </div>
           <div className="flex justify-between items-center">
             <div>
-              <div className="font-bold text-white">Reset Practice Data</div>
-              <div className="text-xs text-gray-500">Clears local drill history only.</div>
+              <div className="font-bold text-base-content">Reset Practice Data</div>
+              <div className="text-xs text-base-muted">Clears local drill history only.</div>
             </div>
-            <button className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-sm">Reset</button>
+            <button className="px-4 py-2 bg-base-content/5 hover:bg-white/10 rounded-lg text-sm">Reset</button>
           </div>
         </div>
       </SettingCard>
@@ -435,7 +435,7 @@ const Settings = () => {
         </h3>
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-bold text-white">Delete Account</div>
+            <div className="font-bold text-base-content">Delete Account</div>
             <div className="text-xs text-red-400/70">Permanently remove your account and all data.</div>
           </div>
           <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold">Delete</button>
@@ -445,7 +445,7 @@ const Settings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-base-dark text-white font-sans">
+    <div className="min-h-screen bg-base-dark text-base-content font-sans">
       <Navbar />
       
       <div className="pt-24 pb-12 px-6">
@@ -454,7 +454,7 @@ const Settings = () => {
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 glass-card p-4 rounded-2xl border border-white/5">
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 px-3">Settings</h3>
+              <h3 className="text-xs font-bold text-base-muted uppercase tracking-widest mb-4 px-3">Settings</h3>
               <div className="space-y-1">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -465,7 +465,7 @@ const Settings = () => {
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                         activeTab === tab.id 
                         ? 'bg-primary text-white shadow-lg' 
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                        : 'text-base-muted hover:bg-base-content/5 hover:text-base-content'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -500,10 +500,10 @@ const Settings = () => {
             </AnimatePresence>
 
             {/* Action Bar */}
-            <div className="mt-8 flex justify-end gap-4 border-t border-white/10 pt-6">
+            <div className="mt-8 flex justify-end gap-4 border-t border-base-content/10 pt-6">
               <button 
                 onClick={resetSettings}
-                className="px-6 py-3 text-gray-400 hover:text-white font-medium transition-colors"
+                className="px-6 py-3 text-base-muted hover:text-base-content font-medium transition-colors"
               >
                 Reset to Default
               </button>

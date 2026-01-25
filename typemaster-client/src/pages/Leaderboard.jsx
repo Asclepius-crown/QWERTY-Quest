@@ -73,7 +73,7 @@ const Leaderboard = () => {
 
     let height = 'h-32';
     let color = 'bg-gray-700';
-    let iconColor = 'text-gray-400';
+    let iconColor = 'text-base-muted';
     let glow = '';
 
     if (isFirst) {
@@ -84,7 +84,7 @@ const Leaderboard = () => {
     } else if (isSecond) {
       height = 'h-40';
       color = 'bg-gray-300/20 border-gray-300/50';
-      iconColor = 'text-gray-300';
+      iconColor = 'text-base-content/80';
     } else if (isThird) {
       height = 'h-36';
       color = 'bg-orange-700/20 border-orange-700/50';
@@ -128,7 +128,7 @@ const Leaderboard = () => {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-base-dark text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen relative overflow-hidden bg-base-dark text-base-content pt-24 pb-12 px-4">
       <Navbar />
       {/* Background Effects */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -144,7 +144,7 @@ const Leaderboard = () => {
           className="text-center mb-16"
         >
           <h1 className="text-5xl font-bold mb-4">Global <span className="text-primary-glow">Leaderboard</span></h1>
-          <p className="text-gray-400 text-lg">The fastest fingers in the world. Can you beat them?</p>
+          <p className="text-base-muted text-lg">The fastest fingers in the world. Can you beat them?</p>
         </motion.div>
 
         {loading ? (
@@ -161,8 +161,8 @@ const Leaderboard = () => {
               </div>
             )}
 
-            <div className="glass-card rounded-2xl border border-white/5 overflow-hidden">
-              <div className="grid grid-cols-12 gap-4 p-6 border-b border-white/10 text-gray-400 font-medium text-sm uppercase tracking-wider">
+            <div className="glass-card rounded-2xl border border-base-content/5 overflow-hidden">
+              <div className="grid grid-cols-12 gap-4 p-6 border-b border-base-content/10 text-base-muted font-medium text-sm uppercase tracking-wider">
                 <div className="col-span-1 text-center">#</div>
                 <div className="col-span-4">Player</div>
                 <div className="col-span-2 text-center">WPM</div>
@@ -182,18 +182,18 @@ const Leaderboard = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                       onClick={() => toggleRow(player._id)}
-                      className={`grid grid-cols-12 gap-4 p-6 border-b border-white/5 items-center cursor-pointer transition-colors group ${isExpanded ? 'bg-white/5' : 'hover:bg-white/5'}`}
+                      className={`grid grid-cols-12 gap-4 p-6 border-b border-base-content/5 items-center cursor-pointer transition-colors group ${isExpanded ? 'bg-base-content/5' : 'hover:bg-base-content/5'}`}
                     >
-                      <div className="col-span-1 text-center font-bold text-gray-500">
+                      <div className="col-span-1 text-center font-bold text-base-muted">
                         {leaders.length >= 3 ? index + 4 : index + 1}
                       </div>
                       <div className="col-span-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-base-navy border border-white/10 flex items-center justify-center text-gray-400">
+                        <div className="w-10 h-10 rounded-full bg-base-navy border border-base-content/10 flex items-center justify-center text-base-muted">
                           <User className="w-5 h-5" />
                         </div>
                         <div>
-                          <div className="font-bold text-white">{player.username}</div>
-                          <div className="text-xs text-gray-500 flex items-center gap-1">
+                          <div className="font-bold text-base-content">{player.username}</div>
+                          <div className="text-xs text-base-muted flex items-center gap-1">
                              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                              details
                           </div>
@@ -210,7 +210,7 @@ const Leaderboard = () => {
                       <div className="col-span-3 flex justify-end">
                         <button
                           onClick={(e) => { e.stopPropagation(); handleChallenge(player); }}
-                          className="opacity-0 group-hover:opacity-100 transition-all bg-white/10 hover:bg-white/20 hover:text-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold border border-white/5"
+                          className="opacity-0 group-hover:opacity-100 transition-all bg-base-content/10 hover:bg-white/20 hover:text-primary text-base-content px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold border border-base-content/5"
                         >
                           <Sword className="w-4 h-4" />
                           Challenge
@@ -224,18 +224,18 @@ const Leaderboard = () => {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          className="col-span-12 overflow-hidden bg-base-navy/30 border-b border-white/5"
+                          className="col-span-12 overflow-hidden bg-base-navy/30 border-b border-base-content/5"
                         >
                           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
-                                <h4 className="text-gray-400 font-bold mb-4 flex items-center gap-2">
+                                <h4 className="text-base-muted font-bold mb-4 flex items-center gap-2">
                                     <BarChart2 className="w-4 h-4" /> Head-to-Head
                                 </h4>
                                 <div className="space-y-4">
                                     <div>
                                         <div className="flex justify-between text-sm mb-1">
                                             <span>Your Best WPM</span>
-                                            <span className="text-white font-bold">{myStats.bestWPM}</span>
+                                            <span className="text-base-content font-bold">{myStats.bestWPM}</span>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">
                                             <div 
@@ -247,7 +247,7 @@ const Leaderboard = () => {
                                     <div>
                                         <div className="flex justify-between text-sm mb-1">
                                             <span>Opponent WPM</span>
-                                            <span className="text-white font-bold">{player.wpm}</span>
+                                            <span className="text-base-content font-bold">{player.wpm}</span>
                                         </div>
                                         <div className="w-full bg-gray-700 rounded-full h-2">
                                             <div 
@@ -259,12 +259,12 @@ const Leaderboard = () => {
                                 </div>
                             </div>
                             
-                            <div className="flex flex-col items-center justify-center border-l border-white/10 pl-8">
-                                <div className="text-gray-400 text-sm mb-2 uppercase tracking-widest">Win Probability</div>
+                            <div className="flex flex-col items-center justify-center border-l border-base-content/10 pl-8">
+                                <div className="text-base-muted text-sm mb-2 uppercase tracking-widest">Win Probability</div>
                                 <div className={`text-5xl font-bold ${winProb > 50 ? 'text-green-400' : 'text-red-400'}`}>
                                     {winProb}%
                                 </div>
-                                <div className="text-xs text-gray-500 mt-2">
+                                <div className="text-xs text-base-muted mt-2">
                                     {winProb > 50 ? "You're favored to win!" : "This will be a tough race."}
                                 </div>
                                 <button
@@ -283,7 +283,7 @@ const Leaderboard = () => {
               })}
 
               {leaders.length === 0 && (
-                 <div className="p-12 text-center text-gray-400">
+                 <div className="p-12 text-center text-base-muted">
                    No races recorded yet. Be the first to claim the throne!
                  </div>
               )}

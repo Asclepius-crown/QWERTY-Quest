@@ -5,7 +5,7 @@ import { Keyboard, Zap, Trophy, Target } from 'lucide-react';
 
 const HowItWorks = () => {
   return (
-    <div className="min-h-screen bg-base-dark text-white">
+    <div className="min-h-screen bg-base-dark text-base-content">
       <Navbar />
       <div className="pt-24 pb-12 px-6">
         <div className="max-w-4xl mx-auto">
@@ -15,7 +15,7 @@ const HowItWorks = () => {
             className="text-center mb-16"
           >
             <h1 className="text-5xl font-bold mb-6">Master the <span className="text-primary-glow">Art of Typing</span></h1>
-            <p className="text-xl text-gray-400">Your journey from novice to speed demon starts here.</p>
+            <p className="text-xl text-base-muted">Your journey from novice to speed demon starts here.</p>
           </motion.div>
 
           <div className="space-y-12">
@@ -30,14 +30,14 @@ const HowItWorks = () => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                className="glass-card p-8 rounded-2xl border border-white/5 flex items-start gap-6"
+                className="glass-card p-8 rounded-2xl border border-base-content/5 flex items-start gap-6"
               >
                 <div className="p-4 bg-primary/10 rounded-xl text-primary">
                   <step.icon className="w-8 h-8" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold mb-2">{step.title}</h3>
-                  <p className="text-gray-400">{step.desc}</p>
+                  <p className="text-base-muted">{step.desc}</p>
                 </div>
               </motion.div>
             ))}

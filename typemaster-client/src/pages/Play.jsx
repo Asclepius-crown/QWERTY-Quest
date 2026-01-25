@@ -414,7 +414,7 @@ const Play = () => {
 
   const renderText = () => {
     return text.split('').map((char, index) => {
-      let className = 'text-gray-400';
+      let className = 'text-base-muted';
       if (index < currentIndex) {
         className = index < userInput.length && userInput[index] === char ? 'text-green-400' : 'text-red-400';
       } else if (index === currentIndex) {
@@ -434,7 +434,7 @@ const Play = () => {
   };
 
   return (
-    <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ${getAtmosphereClass()} text-white`}>
+    <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ${getAtmosphereClass()} text-base-content`}>
       <Navbar />
       {/* Background Effects */}
       {settings.backgroundAnimations && (
@@ -466,53 +466,53 @@ const Play = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Start Your <span className="text-primary-glow">Typing Race</span>
             </h1>
-            <p className="text-gray-400 text-lg">Test your speed and accuracy against the clock</p>
+            <p className="text-base-muted text-lg">Test your speed and accuracy against the clock</p>
           </motion.div>
 
           {gameState === 'waiting' && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-card p-8 rounded-2xl border border-white/5 text-center"
+              className="glass-card p-8 rounded-2xl border border-base-content/5 text-center"
             >
               <h2 className="text-2xl font-bold mb-6">Choose Your Race Mode</h2>
               <div className="grid grid-cols-3 gap-4 mb-8">
                 <button
                   onClick={() => setMode('solo')}
-                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'solo' ? 'border-primary bg-primary/20' : 'border-white/10 hover:border-white/20'}`}
+                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'solo' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
                 >
                   <User className="w-8 h-8 mx-auto mb-2 text-primary" />
                   <div className="font-bold">Solo Practice</div>
-                  <div className="text-sm text-gray-400">Race against time</div>
+                  <div className="text-sm text-base-muted">Race against time</div>
                 </button>
                 <button
                   onClick={() => setMode('quick-race')}
-                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'quick-race' ? 'border-primary bg-primary/20' : 'border-white/10 hover:border-white/20'}`}
+                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'quick-race' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
                 >
                   <Users className="w-8 h-8 mx-auto mb-2 text-accent-purple" />
                   <div className="font-bold">Quick Race</div>
-                  <div className="text-sm text-gray-400">Compete with others</div>
+                  <div className="text-sm text-base-muted">Compete with others</div>
                 </button>
                 <button
                   onClick={() => setMode('custom')}
-                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'custom' ? 'border-primary bg-primary/20' : 'border-white/10 hover:border-white/20'}`}
+                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'custom' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
                 >
                   <Keyboard className="w-8 h-8 mx-auto mb-2 text-green-400" />
                   <div className="font-bold">Custom Text</div>
-                  <div className="text-sm text-gray-400">Use your own text</div>
+                  <div className="text-sm text-base-muted">Use your own text</div>
                 </button>
               </div>
 
               {(mode === 'solo' || mode === 'quick-race') && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Select Difficulty:</label>
+                  <label className="block text-sm font-medium text-base-content/80 mb-2">Select Difficulty:</label>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Difficulty</label>
+                      <label className="block text-sm font-medium text-base-content/80 mb-1">Difficulty</label>
                       <select
                         value={difficulty}
                         onChange={(e) => setDifficulty(e.target.value)}
-                        className="w-full p-3 bg-base-navy/50 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                        className="w-full p-3 bg-base-content/5 border border-base-content/10 rounded-xl text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                       >
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
@@ -520,11 +520,11 @@ const Play = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">Duration</label>
+                      <label className="block text-sm font-medium text-base-content/80 mb-1">Duration</label>
                       <select
                         value={duration}
                         onChange={(e) => setDuration(Number(e.target.value))}
-                        className="w-full p-3 bg-base-navy/50 border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                        className="w-full p-3 bg-base-content/5 border border-base-content/10 rounded-xl text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
                       >
                         <option value={30}>30 seconds</option>
                         <option value={60}>1 minute</option>
@@ -537,12 +537,12 @@ const Play = () => {
 
               {mode === 'custom' && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Enter your custom text:</label>
+                  <label className="block text-sm font-medium text-base-content/80 mb-2">Enter your custom text:</label>
                   <textarea
                     value={customText}
                     onChange={(e) => setCustomText(e.target.value)}
                     placeholder="Type or paste your custom text here..."
-                    className="w-full p-4 bg-base-navy/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 min-h-[100px] resize-y"
+                    className="w-full p-4 bg-base-content/5 border border-base-content/10 rounded-xl text-base-content placeholder-gray-500 focus:ring-2 focus:ring-primary/50 focus:border-primary/50 min-h-[100px] resize-y"
                   />
                 </div>
               )}
@@ -551,14 +551,14 @@ const Play = () => {
                 <button
                   onClick={startGame}
                   disabled={loading || (mode === 'custom' && customText.trim().length < 10)}
-                  className="px-8 py-4 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xl shadow-lg transition-all flex items-center gap-3"
+                  className="px-8 py-4 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-base-content rounded-xl font-bold text-xl shadow-lg transition-all flex items-center gap-3"
                 >
                   <PlayIcon className="w-6 h-6" />
                   {loading ? 'Loading...' : mode === 'quick-race' ? 'Find Match' : 'Start Race'}
                 </button>
                 <button
                   onClick={fetchHistory}
-                  className="px-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-all flex items-center gap-2"
+                  className="px-6 py-4 bg-base-content/10 hover:bg-white/20 text-base-content rounded-xl font-bold transition-all flex items-center gap-2"
                 >
                   <Trophy className="w-5 h-5" />
                   History
@@ -571,11 +571,11 @@ const Play = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-card p-8 rounded-2xl border border-white/5 text-center"
+              className="glass-card p-8 rounded-2xl border border-base-content/5 text-center"
             >
               <h2 className="text-2xl font-bold mb-6">Finding Opponent...</h2>
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <p className="text-gray-400 mt-4">Please wait while we match you with another player</p>
+              <p className="text-base-muted mt-4">Please wait while we match you with another player</p>
             </motion.div>
           )}
 
@@ -583,11 +583,11 @@ const Play = () => {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-card p-8 rounded-2xl border border-white/5 text-center"
+              className="glass-card p-8 rounded-2xl border border-base-content/5 text-center"
             >
               <h2 className="text-3xl font-bold mb-6">Race Starting!</h2>
               <div className="text-6xl font-bold text-primary mb-4">3</div>
-              <p className="text-gray-400">Get ready to type...</p>
+              <p className="text-base-muted">Get ready to type...</p>
             </motion.div>
           )}
 
@@ -599,25 +599,25 @@ const Play = () => {
             >
               {/* Stats Bar */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
                   <Zap className={`w-6 h-6 text-yellow-400 mx-auto mb-2`} />
                   <div className="text-2xl font-bold">{wpm}</div>
-                  <div className="text-sm text-gray-400">WPM</div>
+                  <div className="text-sm text-base-muted">WPM</div>
                 </div>
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
                   <Target className="w-6 h-6 text-green-400 mx-auto mb-2" />
                   <div className="text-2xl font-bold">{accuracy}%</div>
-                  <div className="text-sm text-gray-400">Accuracy</div>
+                  <div className="text-sm text-base-muted">Accuracy</div>
                 </div>
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
                   <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
                   <div className="text-2xl font-bold">{timeLeft}s</div>
-                  <div className="text-sm text-gray-400">Time Left</div>
+                  <div className="text-sm text-base-muted">Time Left</div>
                 </div>
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
                   <Trophy className="w-6 h-6 text-purple-400 mx-auto mb-2" />
                   <div className="text-2xl font-bold">{Math.round((currentIndex / text.length) * 100)}%</div>
-                  <div className="text-sm text-gray-400">Progress</div>
+                  <div className="text-sm text-base-muted">Progress</div>
                 </div>
               </div>
 
@@ -625,23 +625,23 @@ const Play = () => {
               {opponents.length > 0 && settings.liveWpm && ( // Respect liveWpm setting
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {opponents.map((opponent, idx) => (
-                    <div key={opponent.userId} className="glass-card p-4 rounded-xl border border-white/5">
+                    <div key={opponent.userId} className="glass-card p-4 rounded-xl border border-base-content/5">
                       <div className="flex items-center gap-3 mb-2">
-                        <User className="w-5 h-5 text-gray-400" />
+                        <User className="w-5 h-5 text-base-muted" />
                         <span className="font-medium">Opponent {idx + 1}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-2 text-sm">
                         <div>
                           <div className="font-bold text-primary">{opponent.wpm || 0}</div>
-                          <div className="text-gray-400">WPM</div>
+                          <div className="text-base-muted">WPM</div>
                         </div>
                         <div>
                           <div className="font-bold text-green-400">{opponent.accuracy || 0}%</div>
-                          <div className="text-gray-400">Acc</div>
+                          <div className="text-base-muted">Acc</div>
                         </div>
                         <div>
                           <div className="font-bold text-purple-400">{opponent.currentIndex ? Math.round((opponent.currentIndex / text.length) * 100) : 0}%</div>
-                          <div className="text-gray-400">Prog</div>
+                          <div className="text-base-muted">Prog</div>
                         </div>
                       </div>
                     </div>
@@ -650,8 +650,8 @@ const Play = () => {
               )}
 
               {/* Progress Bar */}
-              <div className="glass-card p-6 rounded-xl border border-white/5">
-                <div className="w-full bg-base-navy/50 rounded-full h-3 mb-4">
+              <div className="glass-card p-6 rounded-xl border border-base-content/5">
+                <div className="w-full bg-base-content/5 rounded-full h-3 mb-4">
                   <motion.div
                     className="bg-primary h-3 rounded-full"
                     initial={{ width: 0 }}
@@ -662,7 +662,7 @@ const Play = () => {
               </div>
 
               {/* Text Display */}
-              <div className="glass-card p-8 rounded-xl border border-white/5">
+              <div className="glass-card p-8 rounded-xl border border-base-content/5">
                 <div className="text-lg md:text-xl leading-relaxed font-mono mb-6 min-h-[120px] md:min-h-[150px]">
                   {renderText()}
                 </div>
@@ -674,7 +674,7 @@ const Play = () => {
                   value={userInput}
                   onChange={handleInputChange}
                   disabled={gameState !== 'active'}
-                  className="w-full p-4 md:p-6 bg-base-navy/50 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none text-lg md:text-xl font-mono touch-manipulation"
+                  className="w-full p-4 md:p-6 bg-base-content/5 border border-base-content/10 rounded-xl text-base-content placeholder-gray-500 focus:outline-none text-lg md:text-xl font-mono touch-manipulation"
                   placeholder={gameState === 'active' ? "Start typing..." : "Race completed!"}
                   autoComplete="off"
                   autoCorrect="off"
@@ -687,17 +687,17 @@ const Play = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="glass-card p-8 rounded-xl border border-white/5 text-center"
+                  className="glass-card p-8 rounded-xl border border-base-content/5 text-center"
                 >
                   <h2 className="text-3xl font-bold mb-4">Race Complete!</h2>
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div>
                       <div className="text-4xl font-bold text-primary">{wpm}</div>
-                      <div className="text-gray-400">Final WPM</div>
+                      <div className="text-base-muted">Final WPM</div>
                     </div>
                     <div>
                       <div className="text-4xl font-bold text-green-400">{accuracy}%</div>
-                      <div className="text-gray-400">Accuracy</div>
+                      <div className="text-base-muted">Accuracy</div>
                     </div>
                   </div>
                   <button
@@ -717,40 +717,40 @@ const Play = () => {
       {/* History Modal */}
       {showHistory && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-card p-6 rounded-2xl border border-white/5 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+          <div className="glass-card p-6 rounded-2xl border border-base-content/5 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold">Race History</h3>
               <button
                 onClick={() => setShowHistory(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-base-muted hover:text-base-content"
               >
                 ✕
               </button>
             </div>
             {raceHistory.length === 0 ? (
-              <p className="text-gray-400 text-center">No races completed yet.</p>
+              <p className="text-base-muted text-center">No races completed yet.</p>
             ) : (
               <div className="space-y-4">
                 {raceHistory.map((race, idx) => {
                   const userResult = race.participants.find(p => p.userId === user.id);
                   return (
-                    <div key={idx} className="glass-card p-4 rounded-xl border border-white/5">
+                    <div key={idx} className="glass-card p-4 rounded-xl border border-base-content/5">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">{race.type === 'solo' ? 'Solo Race' : 'Multiplayer'}</span>
-                        <span className="text-sm text-gray-400">{new Date(race.createdAt).toLocaleDateString()}</span>
+                        <span className="text-sm text-base-muted">{new Date(race.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <div className="font-bold text-primary">{userResult?.wpm || 0}</div>
-                          <div className="text-gray-400">WPM</div>
+                          <div className="text-base-muted">WPM</div>
                         </div>
                         <div>
                           <div className="font-bold text-green-400">{userResult?.accuracy || 0}%</div>
-                          <div className="text-gray-400">Accuracy</div>
+                          <div className="text-base-muted">Accuracy</div>
                         </div>
                         <div>
                           <div className="font-bold text-purple-400">{userResult?.timeTaken || 0}s</div>
-                          <div className="text-gray-400">Time</div>
+                          <div className="text-base-muted">Time</div>
                         </div>
                       </div>
                     </div>

@@ -4,11 +4,44 @@
 
 :root {
   color-scheme: dark;
+  
+  /* Default (Dark/Neon) - RGB Values */
+  --color-primary: 59 130 246;       /* #3B82F6 */
+  --color-primary-glow: 56 189 248;  /* #38BDF8 */
+  --color-primary-hover: 37 99 235;  /* #2563EB */
+  
+  --color-base-dark: 5 6 10;         /* #05060A */
+  --color-base-navy: 11 18 32;       /* #0B1220 */
+  --color-base-content: 255 255 255; /* #FFFFFF */
+  --color-base-muted: 156 163 175;   /* #9CA3AF (gray-400) */
+}
+
+/* Light Theme */
+.theme-light {
+  color-scheme: light;
+  
+  --color-primary: 37 99 235;        /* #2563EB (Darker Blue) */
+  --color-primary-glow: 59 130 246;  /* #3B82F6 */
+  --color-primary-hover: 29 78 216;  /* #1D4ED8 */
+  
+  --color-base-dark: 248 250 252;    /* #F8FAFC (Slate-50) */
+  --color-base-navy: 255 255 255;    /* #FFFFFF */
+  --color-base-content: 15 23 42;    /* #0F172A (Slate-900) */
+  --color-base-muted: 100 116 139;   /* #64748B (Slate-500) */
+}
+
+/* Midnight Theme (Deep Blue/Purple) */
+.theme-midnight {
+  --color-base-dark: 2 6 23;         /* Slate-950 */
+  --color-base-navy: 15 23 42;       /* Slate-900 */
+  --color-primary: 124 58 237;       /* Violet-600 */
+  --color-primary-glow: 167 139 250; /* Violet-400 */
 }
 
 body {
-  @apply bg-base-dark text-white overflow-x-hidden font-sans;
-  background-color: #05060A;
+  @apply bg-base-dark text-base-content overflow-x-hidden font-sans;
+  background-color: rgb(var(--color-base-dark));
+  color: rgb(var(--color-base-content));
 }
 
 /* Custom Scrollbar */
@@ -16,14 +49,14 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B1220;
+  background: rgb(var(--color-base-navy));
 }
 ::-webkit-scrollbar-thumb {
-  background: #3B82F6;
+  background: rgb(var(--color-primary));
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #38BDF8;
+  background: rgb(var(--color-primary-glow));
 }
 
 /* Glassmorphism Utilities */

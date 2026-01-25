@@ -106,18 +106,18 @@ const Practice = () => {
 
   const renderText = () => {
     return activeDrill.text.split('').map((char, idx) => {
-      let className = "text-gray-500 transition-colors duration-200";
+      let className = "text-base-muted transition-colors duration-200";
       if (idx < currentIndex) {
         className = "text-green-400";
       } else if (idx === currentIndex) {
-        className = "bg-primary/20 text-white border-b-2 border-primary animate-pulse";
+        className = "bg-primary/20 text-base-content border-b-2 border-primary animate-pulse";
       }
       return <span key={idx} className={className}>{char}</span>;
     });
   };
 
   return (
-    <div className="min-h-screen bg-base-dark text-white">
+    <div className="min-h-screen bg-base-dark text-base-content">
       <Navbar />
       
       <div className="pt-24 pb-12 px-6">
@@ -129,15 +129,15 @@ const Practice = () => {
               <Target className="w-10 h-10 text-primary" />
               The <span className="text-primary-glow">Dojo</span>
             </h1>
-            <p className="text-gray-400">Master your keystrokes. No timer, just focus.</p>
+            <p className="text-base-muted">Master your keystrokes. No timer, just focus.</p>
           </div>
 
           <div className="grid lg:grid-cols-4 gap-8">
             
             {/* Sidebar: Drill Selection */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="glass-card p-4 rounded-xl border border-white/5">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Drill Type</h3>
+              <div className="glass-card p-4 rounded-xl border border-base-content/5">
+                <h3 className="text-sm font-bold text-base-muted uppercase tracking-widest mb-4">Drill Type</h3>
                 <div className="space-y-2">
                   {Object.keys(drills).map(cat => (
                     <button
@@ -145,8 +145,8 @@ const Practice = () => {
                       onClick={() => setCategory(cat)}
                       className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all flex items-center justify-between ${
                         category === cat 
-                        ? 'bg-primary/20 text-white border border-primary/20' 
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                        ? 'bg-primary/20 text-base-content border border-primary/20' 
+                        : 'text-base-muted hover:bg-base-content/5 hover:text-base-content'
                       }`}
                     >
                       {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -156,8 +156,8 @@ const Practice = () => {
                 </div>
               </div>
 
-              <div className="glass-card p-4 rounded-xl border border-white/5">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Select Drill</h3>
+              <div className="glass-card p-4 rounded-xl border border-base-content/5">
+                <h3 className="text-sm font-bold text-base-muted uppercase tracking-widest mb-4">Select Drill</h3>
                 <div className="space-y-2 max-h-[300px] overflow-y-auto">
                   {drills[category].map(drill => (
                     <button
@@ -165,8 +165,8 @@ const Practice = () => {
                       onClick={() => startDrill(drill)}
                       className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-all ${
                         activeDrill.id === drill.id 
-                        ? 'bg-white/10 text-primary font-bold' 
-                        : 'text-gray-400 hover:bg-white/5'
+                        ? 'bg-base-content/10 text-primary font-bold' 
+                        : 'text-base-muted hover:bg-base-content/5'
                       }`}
                     >
                       {drill.label}
@@ -181,16 +181,16 @@ const Practice = () => {
               
               {/* Stats Bar */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Speed</div>
-                  <div className="text-2xl font-mono font-bold text-primary">{wpm} <span className="text-sm text-gray-500">WPM</span></div>
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
+                  <div className="text-xs text-base-muted uppercase tracking-wider mb-1">Speed</div>
+                  <div className="text-2xl font-mono font-bold text-primary">{wpm} <span className="text-sm text-base-muted">WPM</span></div>
                 </div>
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Accuracy</div>
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
+                  <div className="text-xs text-base-muted uppercase tracking-wider mb-1">Accuracy</div>
                   <div className={`text-2xl font-mono font-bold ${accuracy > 95 ? 'text-green-400' : 'text-yellow-400'}`}>{accuracy}%</div>
                 </div>
-                <div className="glass-card p-4 rounded-xl border border-white/5 text-center">
-                  <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">Progress</div>
+                <div className="glass-card p-4 rounded-xl border border-base-content/5 text-center">
+                  <div className="text-xs text-base-muted uppercase tracking-wider mb-1">Progress</div>
                   <div className="text-2xl font-mono font-bold text-blue-400">
                     {Math.round((currentIndex / activeDrill.text.length) * 100)}%
                   </div>
@@ -198,7 +198,7 @@ const Practice = () => {
               </div>
 
               {/* Typing Area */}
-              <div className="glass-card p-8 rounded-2xl border border-white/5 relative min-h-[200px] flex flex-col justify-center">
+              <div className="glass-card p-8 rounded-2xl border border-base-content/5 relative min-h-[200px] flex flex-col justify-center">
                 {!isFinished ? (
                   <>
                     <div 
@@ -217,7 +217,7 @@ const Practice = () => {
                       autoCorrect="off"
                       spellCheck="false"
                     />
-                    <div className="absolute top-4 right-4 flex items-center gap-2 text-xs text-gray-500">
+                    <div className="absolute top-4 right-4 flex items-center gap-2 text-xs text-base-muted">
                       <Keyboard className="w-4 h-4" /> Focus Mode
                     </div>
                   </>
@@ -230,17 +230,17 @@ const Practice = () => {
                     >
                       <Award className="w-12 h-12 text-green-400" />
                     </motion.div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Drill Complete!</h2>
-                    <p className="text-gray-400 mb-8">Great focus. Here is how you did.</p>
+                    <h2 className="text-3xl font-bold text-base-content mb-2">Drill Complete!</h2>
+                    <p className="text-base-muted mb-8">Great focus. Here is how you did.</p>
                     
                     <div className="flex justify-center gap-12 mb-8">
                       <div>
                         <div className="text-4xl font-bold text-primary">{wpm}</div>
-                        <div className="text-sm text-gray-500">Final WPM</div>
+                        <div className="text-sm text-base-muted">Final WPM</div>
                       </div>
                       <div>
                         <div className="text-4xl font-bold text-green-400">{accuracy}%</div>
-                        <div className="text-sm text-gray-500">Accuracy</div>
+                        <div className="text-sm text-base-muted">Accuracy</div>
                       </div>
                     </div>
 

@@ -8,14 +8,16 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#3B82F6', // Neon Blue
-          glow: '#38BDF8',
-          hover: '#2563EB',
+          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
+          glow: 'rgb(var(--color-primary-glow) / <alpha-value>)',
+          hover: 'rgb(var(--color-primary-hover) / <alpha-value>)',
         },
         base: {
-          dark: '#05060A', // Near Black
-          navy: '#0B1220', // Dark Navy
-          card: 'rgba(11, 18, 32, 0.6)',
+          dark: 'rgb(var(--color-base-dark) / <alpha-value>)',
+          navy: 'rgb(var(--color-base-navy) / <alpha-value>)',
+          card: 'rgb(var(--color-base-navy) / 0.6)',
+          content: 'rgb(var(--color-base-content) / <alpha-value>)',
+          muted: 'rgb(var(--color-base-muted) / <alpha-value>)',
         },
         accent: {
           purple: '#A855F7', // Electric Purple

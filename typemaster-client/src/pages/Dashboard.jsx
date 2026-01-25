@@ -59,7 +59,7 @@ const Dashboard = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-base-dark text-white">
+    <div className="min-h-screen bg-base-dark text-base-content">
       <Navbar />
       <div className="pt-24 pb-12 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -106,7 +106,7 @@ const Dashboard = () => {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-card p-6 rounded-2xl border border-white/5"
+              className="glass-card p-6 rounded-2xl border border-base-content/5"
             >
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold flex items-center gap-2">
@@ -114,7 +114,7 @@ const Dashboard = () => {
                 </h3>
                 <div className="flex gap-2">
                   <span className="text-xs px-2 py-1 rounded bg-primary/20 text-primary border border-primary/20">Speed</span>
-                  <span className="text-xs px-2 py-1 rounded bg-white/5 text-gray-400 border border-white/10">Accuracy</span>
+                  <span className="text-xs px-2 py-1 rounded bg-base-content/5 text-base-muted border border-base-content/10">Accuracy</span>
                 </div>
               </div>
               <div className="h-64 w-full">
@@ -149,16 +149,16 @@ const Dashboard = () => {
             </motion.div>
 
             {/* 4. Recent Matches Table */}
-            <div className="glass-card rounded-2xl border border-white/5 overflow-hidden">
-              <div className="p-6 border-b border-white/5 flex justify-between items-center">
+            <div className="glass-card rounded-2xl border border-base-content/5 overflow-hidden">
+              <div className="p-6 border-b border-base-content/5 flex justify-between items-center">
                 <h3 className="text-xl font-bold flex items-center gap-2">
-                  <History className="w-5 h-5 text-gray-400" /> Recent Matches
+                  <History className="w-5 h-5 text-base-muted" /> Recent Matches
                 </h3>
                 <button className="text-sm text-primary hover:underline">View All</button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                  <thead className="bg-white/5 text-xs uppercase text-gray-400">
+                  <thead className="bg-base-content/5 text-xs uppercase text-base-muted">
                     <tr>
                       <th className="px-6 py-4">Result</th>
                       <th className="px-6 py-4">WPM</th>
@@ -169,17 +169,17 @@ const Dashboard = () => {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {history.slice().reverse().slice(0, 5).map((race, idx) => (
-                      <tr key={idx} className="hover:bg-white/5 transition-colors">
+                      <tr key={idx} className="hover:bg-base-content/5 transition-colors">
                         <td className="px-6 py-4">
                           <span className="inline-flex items-center gap-1 text-green-400 font-bold text-xs bg-green-500/10 px-2 py-1 rounded">
                             <Trophy className="w-3 h-3" /> VICTORY
                           </span>
                         </td>
-                        <td className="px-6 py-4 font-mono font-bold text-white">{race.wpm}</td>
-                        <td className="px-6 py-4 text-gray-300">{race.accuracy}%</td>
-                        <td className="px-6 py-4 text-gray-500 text-sm">{new Date(race.createdAt).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 font-mono font-bold text-base-content">{race.wpm}</td>
+                        <td className="px-6 py-4 text-base-content/80">{race.accuracy}%</td>
+                        <td className="px-6 py-4 text-base-muted text-sm">{new Date(race.createdAt).toLocaleDateString()}</td>
                         <td className="px-6 py-4">
-                          <button className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded transition-colors">
+                          <button className="text-xs bg-base-content/10 hover:bg-white/20 text-base-content px-3 py-1 rounded transition-colors">
                             Replay
                           </button>
                         </td>
@@ -187,7 +187,7 @@ const Dashboard = () => {
                     ))}
                     {history.length === 0 && (
                       <tr>
-                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500 italic">
+                        <td colSpan="5" className="px-6 py-8 text-center text-base-muted italic">
                           No matches played yet.
                         </td>
                       </tr>
@@ -209,11 +209,11 @@ const Dashboard = () => {
                 <div className="inline-block p-3 rounded-full bg-yellow-500/20 border border-yellow-500/50 mb-3">
                   <Crown className="w-8 h-8 text-yellow-400" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-1">{user?.stats?.rank || 'Bronze'} I</h3>
+                <h3 className="text-2xl font-bold text-base-content mb-1">{user?.stats?.rank || 'Bronze'} I</h3>
                 <div className="text-xs text-yellow-500 uppercase tracking-widest mb-4">Current League</div>
                 
                 {/* XP Bar */}
-                <div className="text-left mb-1 flex justify-between text-xs text-gray-400">
+                <div className="text-left mb-1 flex justify-between text-xs text-base-muted">
                   <span>{user?.stats?.xp || 0} XP</span>
                   <span>Next Rank</span>
                 </div>
@@ -224,7 +224,7 @@ const Dashboard = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="glass-card p-6 rounded-2xl border border-white/5">
+            <div className="glass-card p-6 rounded-2xl border border-base-content/5">
               <h3 className="text-lg font-bold mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <ActionButton to="/play" icon={Zap} label="Quick Race" color="bg-primary" />
@@ -235,19 +235,19 @@ const Dashboard = () => {
             </div>
 
             {/* Daily Challenge */}
-            <div className="glass-card p-6 rounded-2xl border border-white/5">
+            <div className="glass-card p-6 rounded-2xl border border-base-content/5">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Daily Goal</h3>
-                <span className="text-xs bg-white/10 px-2 py-1 rounded">12h left</span>
+                <span className="text-xs bg-base-content/10 px-2 py-1 rounded">12h left</span>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white/5 rounded-lg">
-                    <Keyboard className="w-5 h-5 text-gray-400" />
+                  <div className="p-2 bg-base-content/5 rounded-lg">
+                    <Keyboard className="w-5 h-5 text-base-muted" />
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">Type 1,000 Words</div>
-                    <div className="w-full h-1.5 bg-white/10 rounded-full mt-2">
+                    <div className="w-full h-1.5 bg-base-content/10 rounded-full mt-2">
                       <div className="h-full bg-blue-500 w-[45%] rounded-full"></div>
                     </div>
                   </div>
@@ -263,9 +263,9 @@ const Dashboard = () => {
 };
 
 const StatCard = ({ icon: Icon, label, value, trend, color, trendLabel, sub }) => (
-  <div className="glass-card p-5 rounded-2xl border border-white/5 flex flex-col justify-between">
+  <div className="glass-card p-5 rounded-2xl border border-base-content/5 flex flex-col justify-between">
     <div className="flex justify-between items-start mb-2">
-      <div className={`p-2 rounded-lg bg-white/5 ${color}`}>
+      <div className={`p-2 rounded-lg bg-base-content/5 ${color}`}>
         <Icon className="w-5 h-5" />
       </div>
       {trend && (
@@ -276,10 +276,10 @@ const StatCard = ({ icon: Icon, label, value, trend, color, trendLabel, sub }) =
       )}
     </div>
     <div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="text-xs text-gray-400 uppercase tracking-wider mt-1">{label}</div>
+      <div className="text-2xl font-bold text-base-content">{value}</div>
+      <div className="text-xs text-base-muted uppercase tracking-wider mt-1">{label}</div>
       {(trendLabel || sub) && (
-        <div className="text-[10px] text-gray-500 mt-1">{trendLabel || sub}</div>
+        <div className="text-[10px] text-base-muted mt-1">{trendLabel || sub}</div>
       )}
     </div>
   </div>
@@ -288,12 +288,12 @@ const StatCard = ({ icon: Icon, label, value, trend, color, trendLabel, sub }) =
 const ActionButton = ({ to, icon: Icon, label, color }) => (
   <Link 
     to={to}
-    className="flex items-center gap-3 w-full p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
+    className="flex items-center gap-3 w-full p-3 rounded-xl bg-base-content/5 hover:bg-base-content/10 border border-base-content/5 transition-all group"
   >
-    <div className={`p-2 rounded-lg text-white shadow-lg ${color} group-hover:scale-110 transition-transform`}>
+    <div className={`p-2 rounded-lg text-base-content shadow-lg ${color} group-hover:scale-110 transition-transform`}>
       <Icon className="w-4 h-4" />
     </div>
-    <span className="font-medium text-gray-200 group-hover:text-white">{label}</span>
+    <span className="font-medium text-gray-200 group-hover:text-base-content">{label}</span>
   </Link>
 );
 
