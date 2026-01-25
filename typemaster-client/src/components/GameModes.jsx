@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Trophy, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const modes = [
   {
@@ -8,6 +9,7 @@ const modes = [
     title: 'Quick Race',
     desc: 'Jump into a live race in seconds. Instant matchmaking with players of your skill level.',
     action: 'Race Now',
+    route: '/play',
     color: 'text-primary-glow',
     bg: 'group-hover:bg-primary/10',
     border: 'group-hover:border-primary/50'
@@ -16,7 +18,8 @@ const modes = [
     icon: Trophy,
     title: 'Ranked Mode',
     desc: 'Compete for XP, climb leagues from Bronze to Apex, and earn seasonal rewards.',
-    action: 'Coming Soon',
+    action: 'Enter League',
+    route: '/ranked-lobby',
     color: 'text-yellow-400',
     bg: 'group-hover:bg-yellow-400/10',
     border: 'group-hover:border-yellow-400/50'
@@ -25,7 +28,8 @@ const modes = [
     icon: Lock,
     title: 'Private Rooms',
     desc: 'Create your own typing arena. Challenge friends, set custom text, and organize tournaments.',
-    action: 'Create Room',
+    action: 'Manage Network',
+    route: '/network',
     color: 'text-accent-purple',
     bg: 'group-hover:bg-accent-purple/10',
     border: 'group-hover:border-accent-purple/50'
@@ -33,6 +37,8 @@ const modes = [
 ];
 
 const GameModes = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="play" className="py-16 md:py-24 bg-base-dark relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -62,7 +68,10 @@ const GameModes = () => {
                 <p className="text-gray-400 mb-8 leading-relaxed h-20">
                   {mode.desc}
                 </p>
-                <button className="w-full py-3 rounded-lg border border-white/10 font-medium hover:bg-white/5 transition-colors flex items-center justify-center group-hover:border-white/20">
+                <button 
+                  onClick={() => navigate(mode.route)}
+                  className="w-full py-3 rounded-lg border border-white/10 font-medium hover:bg-white/5 transition-colors flex items-center justify-center group-hover:border-white/20"
+                >
                   {mode.action}
                 </button>
               </div>

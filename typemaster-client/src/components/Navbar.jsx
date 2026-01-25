@@ -92,6 +92,7 @@ const Navbar = () => {
           {[
             { label: 'Home', to: '/' },
             { label: 'Play', to: '/play' },
+            { label: 'Ranked', to: '/ranked-lobby' },
             { label: 'Leaderboard', to: '/leaderboard' },
             { label: 'How it Works', to: '/how-it-works' }
           ].map((item) => (
@@ -227,6 +228,7 @@ const Navbar = () => {
             {[
               { label: 'Home', to: '/' },
               { label: 'Play', to: '/play' },
+              { label: 'Ranked', to: '/ranked-lobby' },
               { label: 'Leaderboard', to: '/leaderboard' },
               { label: 'How it Works', to: '/how-it-works' }
             ].map((item) => (
