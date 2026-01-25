@@ -76,7 +76,7 @@ router.post('/signup', [
        if (err) throw err;
        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
        await Log.create({ userId: user.id, action: 'signup', ip: req.ip, userAgent: req.get('User-Agent') });
-       res.json({ user: { id: user.id, username: user.username, stats: user.stats } });
+       res.json({ user: { id: user.id, username: user.username, stats: user.stats, netId: user.netId } });
      });
 
   } catch (err) {
@@ -143,7 +143,7 @@ router.post('/login', [
        } catch (e) {
          console.error('Log error:', e);
        }
-       res.json({ user: { id: user.id, username: user.username, stats: user.stats } });
+       res.json({ user: { id: user.id, username: user.username, stats: user.stats, netId: user.netId } });
      });
 
   } catch (err) {

@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/me`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user/me`, {
         credentials: 'include'
       });
       if (response.ok) {
