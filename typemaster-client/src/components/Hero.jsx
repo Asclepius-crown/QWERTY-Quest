@@ -54,7 +54,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary-glow text-sm font-medium"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-base-content/5 border border-base-content/10 text-primary-glow text-sm font-medium"
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -79,7 +79,7 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-gray-400 text-lg md:text-xl max-w-xl leading-relaxed"
+              className="text-base-muted text-lg md:text-xl max-w-xl leading-relaxed"
             >
               Improve your typing speed, compete in real-time, track WPM & accuracy, and climb the global ranks.
             </motion.p>
@@ -97,7 +97,7 @@ const Hero = () => {
                 <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Quick Race
               </button>
-              <button className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold text-lg backdrop-blur-sm transition-all flex items-center justify-center gap-2">
+              <button className="px-8 py-4 bg-base-content/5 hover:bg-base-content/10 text-base-content border border-base-content/10 rounded-xl font-bold text-lg backdrop-blur-sm transition-all flex items-center justify-center gap-2">
                 <Users className="w-5 h-5" />
                 Create Room
               </button>
@@ -108,19 +108,19 @@ const Hero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="flex gap-8 pt-8 border-t border-white/5"
+              className="flex gap-8 pt-8 border-t border-base-content/5"
             >
               <div>
-                <div className="text-2xl font-bold text-white">120+</div>
-                <div className="text-sm text-gray-500 uppercase tracking-wider">Countries</div>
+                <div className="text-2xl font-bold text-base-content">120+</div>
+                <div className="text-sm text-base-muted uppercase tracking-wider">Countries</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">1M+</div>
-                <div className="text-sm text-gray-500 uppercase tracking-wider">Races Run</div>
+                <div className="text-2xl font-bold text-base-content">1M+</div>
+                <div className="text-sm text-base-muted uppercase tracking-wider">Races Run</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">0.02s</div>
-                <div className="text-sm text-gray-500 uppercase tracking-wider">Matchmaking</div>
+                <div className="text-2xl font-bold text-base-content">0.02s</div>
+                <div className="text-sm text-base-muted uppercase tracking-wider">Matchmaking</div>
               </div>
             </motion.div>
           </div>
@@ -145,7 +145,7 @@ const Hero = () => {
                             <Crown className="w-5 h-5 fill-current" />
                             <span className="font-bold tracking-widest text-xs uppercase">Current Champion</span>
                          </div>
-                         <h3 className="text-3xl font-bold text-white">{champion.username}</h3>
+                         <h3 className="text-3xl font-bold text-base-content">{champion.username}</h3>
                       </div>
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 p-[2px]">
                          <div className="w-full h-full rounded-full bg-base-dark flex items-center justify-center">
@@ -155,15 +155,15 @@ const Hero = () => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                        <div className="text-gray-400 text-xs uppercase mb-1">Top Speed</div>
+                      <div className="bg-base-content/5 rounded-xl p-4 border border-base-content/5">
+                        <div className="text-base-muted text-xs uppercase mb-1">Top Speed</div>
                         <div className="text-3xl font-mono font-bold text-primary-glow">{champion.wpm}</div>
-                        <div className="text-xs text-gray-500">Words Per Min</div>
+                        <div className="text-xs text-base-muted">Words Per Min</div>
                       </div>
-                      <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                        <div className="text-gray-400 text-xs uppercase mb-1">Accuracy</div>
+                      <div className="bg-base-content/5 rounded-xl p-4 border border-base-content/5">
+                        <div className="text-base-muted text-xs uppercase mb-1">Accuracy</div>
                         <div className="text-3xl font-mono font-bold text-green-400">{champion.accuracy}%</div>
-                        <div className="text-xs text-gray-500">Precision</div>
+                        <div className="text-xs text-base-muted">Precision</div>
                       </div>
                     </div>
 
@@ -174,16 +174,16 @@ const Hero = () => {
                       <Sword className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                       Dethrone Champion
                     </button>
-                    <p className="text-center text-xs text-gray-500 mt-4">
+                    <p className="text-center text-xs text-base-muted mt-4">
                       Can you beat {champion.wpm} WPM? Prove it.
                     </p>
                   </div>
                 ) : (
                   // Loading / Empty State
-                  <div className="glass-card rounded-2xl p-8 border border-white/10 w-full max-w-md mx-auto lg:ml-auto lg:mr-0">
+                  <div className="glass-card rounded-2xl p-8 border border-base-content/10 w-full max-w-md mx-auto lg:ml-auto lg:mr-0">
                     <div className="animate-pulse space-y-4">
-                       <div className="h-8 bg-white/10 rounded w-1/2"></div>
-                       <div className="h-32 bg-white/5 rounded"></div>
+                       <div className="h-8 bg-base-content/10 rounded w-1/2"></div>
+                       <div className="h-32 bg-base-content/5 rounded"></div>
                        <div className="h-12 bg-primary/20 rounded"></div>
                     </div>
                   </div>
@@ -194,8 +194,8 @@ const Hero = () => {
       </div>
 
       {/* Live Ticker Footer */}
-      <div className="h-12 bg-black/40 border-t border-white/5 flex items-center overflow-hidden relative z-20">
-         <div className="px-4 bg-primary/20 h-full flex items-center font-bold text-xs uppercase tracking-widest text-primary border-r border-white/10 z-10">
+      <div className="h-12 bg-base-navy border-t border-base-content/5 flex items-center overflow-hidden relative z-20">
+         <div className="px-4 bg-primary/20 h-full flex items-center font-bold text-xs uppercase tracking-widest text-primary border-r border-base-content/10 z-10">
             <TrendingUp className="w-4 h-4 mr-2" /> Live Feed
          </div>
          <div className="flex-1 overflow-hidden relative">
@@ -205,16 +205,16 @@ const Hero = () => {
                className="flex items-center gap-12 whitespace-nowrap absolute top-1/2 -translate-y-1/2"
             >
                {[...feed, ...feed].map((item, idx) => (
-                 <div key={idx} className="flex items-center gap-2 text-sm text-gray-400">
+                 <div key={idx} className="flex items-center gap-2 text-sm text-base-muted">
                     <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    <span className="font-bold text-white">{item.username}</span>
+                    <span className="font-bold text-base-content">{item.username}</span>
                     <span>just hit</span>
                     <span className="text-primary font-mono font-bold">{item.wpm} WPM</span>
                     <span className="text-xs opacity-50">on {item.textTitle}</span>
                  </div>
                ))}
                {feed.length === 0 && (
-                 <span className="text-gray-500 italic">Waiting for new records...</span>
+                 <span className="text-base-muted italic">Waiting for new records...</span>
                )}
             </motion.div>
          </div>

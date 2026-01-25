@@ -8,7 +8,7 @@ import Footer from '../components/Footer';
 
 const Landing = () => {
   return (
-    <div id="home" className="min-h-screen bg-base-dark text-white selection:bg-primary selection:text-white">
+    <div id="home" className="min-h-screen bg-base-dark text-base-content selection:bg-primary selection:text-white">
       <Navbar />
       <Hero />
       <GameModes />
