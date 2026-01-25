@@ -11,6 +11,7 @@ import Profile from './pages/Profile';
 import Practice from './pages/Practice';
 import Rank from './pages/Rank';
 import Settings from './pages/Settings';
+import Network from './pages/Network';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><Rank /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/network" element={<ProtectedRoute><Network /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

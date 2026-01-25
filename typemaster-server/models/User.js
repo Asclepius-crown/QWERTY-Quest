@@ -51,6 +51,12 @@ const UserSchema = new mongoose.Schema({
     bestWPM: { type: Number, default: 0 },
     avgWPM: { type: Number, default: 0 }
   },
+  friends: [{
+    friendId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    status: { type: String, enum: ['pending_sent', 'pending_received', 'accepted'], default: 'pending_sent' },
+    intimacy: { type: Number, default: 0 },
+    since: { type: Date, default: Date.now }
+  }],
   createdAt: {
     type: Date,
     default: Date.now

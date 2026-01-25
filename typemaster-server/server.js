@@ -189,6 +189,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/texts', require('./routes/texts'));
 app.use('/api/races', require('./routes/races'));
+app.use('/api/friends', require('./routes/friends'));
 
 // 404 handler
 app.use((req, res) => {

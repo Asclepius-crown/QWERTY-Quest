@@ -4,12 +4,15 @@ import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { SettingsProvider } from './contexts/SettingsContext.jsx'
+import { FriendsProvider } from './contexts/FriendsContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <SettingsProvider>
-        <App />
+        <FriendsProvider>
+          <App />
+        </FriendsProvider>
       </SettingsProvider>
     </AuthProvider>
   </StrictMode>,

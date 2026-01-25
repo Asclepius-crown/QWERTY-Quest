@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Keyboard, Menu, X, LogOut, ChevronDown, User, Skull, Zap, Crown, Star, Ghost, Flame, 
   Activity, Shield, Settings, BarChart2, Eye, EyeOff, UserCircle, LayoutDashboard, 
-  Trophy, Target, History, Palette, Bell, Users as UsersIcon, HelpCircle, Bug 
+  Trophy, Target, History, Palette, Bell, Users as UsersIcon, HelpCircle, Bug, Share2 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -172,6 +172,7 @@ const Navbar = () => {
                         <div className="px-3 py-1 text-[10px] font-bold text-base-muted uppercase tracking-widest">Menu</div>
                         <MenuLink to="/dashboard" icon={UserCircle} label="My Profile" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/network" icon={Share2} label="Network (Friends)" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/leaderboard" icon={Trophy} label="My Rank" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/practice" icon={Target} label="Practice Mode" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/dashboard" icon={History} label="Match History" onClick={() => setProfileOpen(false)} />
@@ -185,7 +186,7 @@ const Navbar = () => {
                         <MenuLink to="/settings" icon={Settings} label="Settings" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/settings" icon={Palette} label="Customize" onClick={() => setProfileOpen(false)} />
                         <MenuButton icon={Bell} label="Notifications" onClick={() => {}} />
-                        <MenuButton icon={UsersIcon} label="Friends" onClick={() => {}} />
+                        <MenuLink to="/network" icon={UsersIcon} label="Manage Uplinks" onClick={() => setProfileOpen(false)} />
                       </div>
 
                       <div className="h-px bg-base-content/5 my-1 mx-2"></div>
