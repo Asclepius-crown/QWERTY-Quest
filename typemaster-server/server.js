@@ -105,78 +105,84 @@ mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
   });
 
 // Passport Strategies
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    let user = await User.findOne({ providerId: profile.id, provider: 'google' });
-    if (!user) {
-      user = new User({
-        username: profile.displayName.replace(/\s+/g, '').toLowerCase() || profile.emails[0].value.split('@')[0],
-        email: profile.emails[0].value,
-        provider: 'google',
-        providerId: profile.id,
-        displayName: profile.displayName,
-        avatar: 'avatar1'
-      });
-      await user.save();
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/google/callback`
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ providerId: profile.id, provider: 'google' });
+      if (!user) {
+        user = new User({
+          username: profile.displayName.replace(/\s+/g, '').toLowerCase() || profile.emails[0].value.split('@')[0],
+          email: profile.emails[0].value,
+          provider: 'google',
+          providerId: profile.id,
+          displayName: profile.displayName,
+          avatar: 'avatar1'
+        });
+        await user.save();
+      }
+      done(null, user);
+    } catch (err) {
+      done(err, null);
     }
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-}));
+  }));
+}
 
-passport.use(new GitHubStrategy({
-  clientID: process.env.GITHUB_CLIENT_ID,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/github/callback`
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    let user = await User.findOne({ providerId: profile.id, provider: 'github' });
-    if (!user) {
-      user = new User({
-        username: profile.username,
-        email: profile.emails[0].value,
-        provider: 'github',
-        providerId: profile.id,
-        displayName: profile.displayName,
-        avatar: 'avatar1'
-      });
-      await user.save();
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+  passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/github/callback`
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ providerId: profile.id, provider: 'github' });
+      if (!user) {
+        user = new User({
+          username: profile.username,
+          email: profile.emails[0].value,
+          provider: 'github',
+          providerId: profile.id,
+          displayName: profile.displayName,
+          avatar: 'avatar1'
+        });
+        await user.save();
+      }
+      done(null, user);
+    } catch (err) {
+      done(err, null);
     }
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-}));
+  }));
+}
 
-passport.use(new DiscordStrategy({
-  clientId: process.env.DISCORD_CLIENT_ID,
-  clientSecret: process.env.DISCORD_CLIENT_SECRET,
-  callbackUrl: `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/discord/callback`,
-  scope: ['identify', 'email']
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    let user = await User.findOne({ providerId: profile.id, provider: 'discord' });
-    if (!user) {
-      user = new User({
-        username: profile.username,
-        email: profile.email,
-        provider: 'discord',
-        providerId: profile.id,
-        displayName: profile.username,
-        avatar: 'avatar1'
-      });
-      await user.save();
+if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
+  passport.use(new DiscordStrategy({
+    clientId: process.env.DISCORD_CLIENT_ID,
+    clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    callbackUrl: `${process.env.BASE_URL || 'http://localhost:5000'}/api/auth/discord/callback`,
+    scope: ['identify', 'email']
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      let user = await User.findOne({ providerId: profile.id, provider: 'discord' });
+      if (!user) {
+        user = new User({
+          username: profile.username,
+          email: profile.email,
+          provider: 'discord',
+          providerId: profile.id,
+          displayName: profile.username,
+          avatar: 'avatar1'
+        });
+        await user.save();
+      }
+      done(null, user);
+    } catch (err) {
+      done(err, null);
     }
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-}));
+  }));
+}
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
