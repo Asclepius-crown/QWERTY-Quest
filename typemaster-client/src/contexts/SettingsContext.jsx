@@ -28,7 +28,7 @@ const defaultSettings = {
   caretStyle: 'Block',
 
   // Appearance
-  theme: 'Neon',
+  theme: 'Midnight',
   accentColor: 'Electric Blue',
   backgroundAnimations: true,
   glowIntensity: true,

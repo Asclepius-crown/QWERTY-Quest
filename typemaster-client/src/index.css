@@ -5,7 +5,23 @@
 :root {
   color-scheme: dark;
   
-  /* Default (Neon) - Cyberpunk Blue & Black */
+  /* Default (Midnight) - Deep Space (Purple/Violet) */
+  --color-primary: 139 92 246;       /* #8B5CF6 (Violet-500) */
+  --color-primary-glow: 167 139 250; /* #A78BFA (Violet-400) */
+  --color-primary-hover: 124 58 237; /* #7C3AED (Violet-600) */
+
+  --color-base-dark: 10 5 30;        /* Deep Violet Black */
+  --color-base-navy: 20 10 45;       /* Dark Violet Navy */
+  --color-base-content: 243 232 255; /* #F3E8FF (Purple-50) */
+  --color-base-muted: 196 181 253;   /* #C4B5FD (Violet-300) */
+  
+  --glass-border: 255 255 255;
+  --glass-border-opacity: 0.1;
+  --glass-bg-opacity: 0.6;
+}
+
+/* Neon Theme - Cyberpunk Blue & Black */
+.theme-neon {
   --color-primary: 59 130 246;       /* #3B82F6 (Blue-500) */
   --color-primary-glow: 56 189 248;  /* #38BDF8 (Sky-400) */
   --color-primary-hover: 37 99 235;  /* #2563EB (Blue-600) */
@@ -14,10 +30,17 @@
   --color-base-navy: 15 23 42;       /* #0F172A (Slate-900) */
   --color-base-content: 248 250 252; /* #F8FAFC (Slate-50) */
   --color-base-muted: 148 163 184;   /* #94A3B8 (Slate-400) */
-  
-  --glass-border: 255 255 255;
-  --glass-border-opacity: 0.1;
-  --glass-bg-opacity: 0.6;
+}
+
+/* Midnight Theme Alias (same as root) */
+.theme-midnight {
+  --color-primary: 139 92 246;
+  --color-primary-glow: 167 139 250;
+  --color-primary-hover: 124 58 237;
+  --color-base-dark: 10 5 30;
+  --color-base-navy: 20 10 45;
+  --color-base-content: 243 232 255;
+  --color-base-muted: 196 181 253;
 }
 
 /* Dark Theme - Neutral & Professional (Charcoal/Gray) */
@@ -48,18 +71,6 @@
   --glass-border: 0 0 0;
   --glass-border-opacity: 0.05;
   --glass-bg-opacity: 0.8;
-}
-
-/* Midnight Theme - Deep Space (Purple/Violet) */
-.theme-midnight {
-  --color-primary: 139 92 246;       /* #8B5CF6 (Violet-500) */
-  --color-primary-glow: 167 139 250; /* #A78BFA (Violet-400) */
-  --color-primary-hover: 124 58 237; /* #7C3AED (Violet-600) */
-
-  --color-base-dark: 10 5 30;        /* Deep Violet Black */
-  --color-base-navy: 20 10 45;       /* Dark Violet Navy */
-  --color-base-content: 243 232 255; /* #F3E8FF (Purple-50) */
-  --color-base-muted: 196 181 253;   /* #C4B5FD (Violet-300) */
 }
 
 body {
