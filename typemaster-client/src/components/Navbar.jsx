@@ -170,12 +170,10 @@ const Navbar = () => {
                       {/* Zone 2: Core Player Actions */}
                       <div className="mb-2">
                         <div className="px-3 py-1 text-[10px] font-bold text-base-muted uppercase tracking-widest">Menu</div>
-                        <MenuLink to="/dashboard" icon={UserCircle} label="My Profile" onClick={() => setProfileOpen(false)} />
-                        <MenuLink to="/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={() => setProfileOpen(false)} />
+                        <MenuLink to="/profile" icon={UserCircle} label="My Profile & Stats" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/network" icon={Share2} label="Network (Friends)" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/leaderboard" icon={Trophy} label="My Rank" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/practice" icon={Target} label="Practice Mode" onClick={() => setProfileOpen(false)} />
-                        <MenuLink to="/dashboard" icon={History} label="Match History" onClick={() => setProfileOpen(false)} />
                       </div>
 
                       <div className="h-px bg-base-content/5 my-1 mx-2"></div>
@@ -247,7 +245,7 @@ const Navbar = () => {
                    </div>
                    {user?.username || 'User'}
                  </div>
-                 <Link to="/dashboard" className="w-full py-4 text-base-content border border-base-content/20 rounded-xl font-bold hover:bg-base-content/5 transition-colors text-center" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                 <Link to="/profile" className="w-full py-4 text-base-content border border-base-content/20 rounded-xl font-bold hover:bg-base-content/5 transition-colors text-center" onClick={() => setIsOpen(false)}>My Profile</Link>
                  <button
                    onClick={() => { logout(); setIsOpen(false); }}
                    className="w-full py-4 bg-red-600 text-white rounded-xl font-bold shadow-lg hover:bg-red-700 transition-colors text-center flex items-center justify-center gap-2"

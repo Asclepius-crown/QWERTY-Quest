@@ -6,7 +6,6 @@ import Signup from './pages/Signup';
 import Play from './pages/Play';
 import Leaderboard from './pages/Leaderboard';
 import HowItWorks from './pages/HowItWorks';
-import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Practice from './pages/Practice';
 import Rank from './pages/Rank';
@@ -25,7 +24,6 @@ function App() {
         <Route path="/play" element={<ProtectedRoute><Play /></ProtectedRoute>} />
         <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/rank" element={<ProtectedRoute><Rank /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
