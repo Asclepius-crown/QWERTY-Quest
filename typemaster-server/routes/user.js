@@ -4,10 +4,33 @@ const auth = require('../middleware/auth');
 const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
 
+const generateNetId = async () => {
+  let id;
+  let exists = true;
+  while(exists) {
+    const num = Math.floor(100000 + Math.random() * 900000).toString(); 
+    id = `${num.substring(0,3)}-${num.substring(3,6)}`;
+    const user = await User.findOne({ netId: id });
+    if (!user) exists = false;
+  }
+  return id;
+};
+
 // Get current user info
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    let user = await User.findById(req.user.id).select('-password');
+    
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Lazy migration for Net-ID
+    if (!user.netId) {
+        user.netId = await generateNetId();
+        await user.save();
+    }
+
     res.json(user);
   } catch (err) {
     console.error(err.message);

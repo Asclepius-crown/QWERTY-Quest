@@ -23,6 +23,18 @@ const transporter = (process.env.EMAIL_SERVICE && process.env.EMAIL_USER && proc
     })
   : null;
 
+const generateNetId = async () => {
+  let id;
+  let exists = true;
+  while(exists) {
+    const num = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+    id = `${num.substring(0,3)}-${num.substring(3,6)}`;
+    const user = await User.findOne({ netId: id });
+    if (!user) exists = false;
+  }
+  return id;
+};
+
 // Register
 router.post('/signup', [
   body('username').isLength({ min: 3, max: 30 }).trim().escape(),
@@ -46,11 +58,14 @@ router.post('/signup', [
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const netId = await generateNetId();
+
     // Create user
     user = new User({
       username,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      netId
     });
 
     await user.save();

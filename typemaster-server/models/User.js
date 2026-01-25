@@ -15,6 +15,11 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
+  netId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows null/undefined values to exist without violating uniqueness
+  },
   password: {
     type: String,
     required: false,

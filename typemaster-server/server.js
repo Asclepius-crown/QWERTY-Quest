@@ -104,6 +104,18 @@ mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
     console.log('MongoDB Connection Error:', err);
   });
 
+const generateNetId = async () => {
+  let id;
+  let exists = true;
+  while(exists) {
+    const num = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+    id = `${num.substring(0,3)}-${num.substring(3,6)}`;
+    const user = await User.findOne({ netId: id });
+    if (!user) exists = false;
+  }
+  return id;
+};
+
 // Passport Strategies
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy({
@@ -114,13 +126,15 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     try {
       let user = await User.findOne({ providerId: profile.id, provider: 'google' });
       if (!user) {
+        const netId = await generateNetId();
         user = new User({
           username: profile.displayName.replace(/\s+/g, '').toLowerCase() || profile.emails[0].value.split('@')[0],
           email: profile.emails[0].value,
           provider: 'google',
           providerId: profile.id,
           displayName: profile.displayName,
-          avatar: 'avatar1'
+          avatar: 'avatar1',
+          netId
         });
         await user.save();
       }
@@ -140,13 +154,15 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
     try {
       let user = await User.findOne({ providerId: profile.id, provider: 'github' });
       if (!user) {
+        const netId = await generateNetId();
         user = new User({
           username: profile.username,
           email: profile.emails[0].value,
           provider: 'github',
           providerId: profile.id,
           displayName: profile.displayName,
-          avatar: 'avatar1'
+          avatar: 'avatar1',
+          netId
         });
         await user.save();
       }
@@ -167,13 +183,15 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
     try {
       let user = await User.findOne({ providerId: profile.id, provider: 'discord' });
       if (!user) {
+        const netId = await generateNetId();
         user = new User({
           username: profile.username,
           email: profile.email,
           provider: 'discord',
           providerId: profile.id,
           displayName: profile.username,
-          avatar: 'avatar1'
+          avatar: 'avatar1',
+          netId
         });
         await user.save();
       }

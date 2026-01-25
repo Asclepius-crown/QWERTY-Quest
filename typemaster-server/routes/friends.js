@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 router.get('/', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
-      .populate('friends.friendId', 'username avatar stats isMfaEnabled status') // Minimal fields
+      .populate('friends.friendId', 'username avatar stats isMfaEnabled status netId') // Minimal fields
       .select('friends');
 
     if (!user) return res.status(404).json({ msg: 'User not found' });
@@ -17,6 +17,7 @@ router.get('/', auth, async (req, res) => {
     const friends = user.friends.map(f => ({
       id: f.friendId._id,
       username: f.friendId.username,
+      netId: f.friendId.netId,
       avatar: f.friendId.avatar,
       rank: f.friendId.stats.rank,
       status: f.status, // pending_sent, pending_received, accepted
@@ -34,11 +35,15 @@ router.get('/', auth, async (req, res) => {
 // POST /api/friends/request - Send Friend Request
 router.post('/request', auth, async (req, res) => {
   try {
-    const { username } = req.body;
+    const { username } = req.body; // Can be username OR netId
     const senderId = req.user.id;
 
+    // Determine query type
+    const isNetId = /^\d{3}-\d{3}$/.test(username);
+    const query = isNetId ? { netId: username } : { username };
+
     // Find Target
-    const target = await User.findOne({ username });
+    const target = await User.findOne(query);
     if (!target) return res.status(404).json({ msg: 'User not found' });
     if (target._id.toString() === senderId) return res.status(400).json({ msg: 'Cannot add yourself' });
 

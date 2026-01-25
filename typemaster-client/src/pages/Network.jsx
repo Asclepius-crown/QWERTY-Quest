@@ -94,6 +94,10 @@ const Network = () => {
              {center ? user?.username : friend.username}
            </span>
            
+           <span className="text-[9px] font-mono text-base-muted/50 -mt-0.5">
+             {center ? user?.netId : friend?.netId || '###-###'}
+           </span>
+           
            {!center && (
              <span className="text-[10px] text-base-muted font-mono mt-0.5">{friend.rank || 'Unranked'}</span>
            )}
@@ -301,7 +305,7 @@ const Network = () => {
                               }
                            </div>
                            <h2 className="text-2xl font-bold mb-2">Establish Frequency Uplink</h2>
-                           <p className="text-base-muted text-sm">Enter the target's Net-Signature (Username) to broadcast a handshake request.</p>
+                           <p className="text-base-muted text-sm">Enter the target's Net-Signature (Username or Net-ID: XXX-XXX) to broadcast a handshake request.</p>
                         </div>
 
                         <form onSubmit={handleSendRequest} className="relative">
@@ -309,7 +313,7 @@ const Network = () => {
                              type="text" 
                              value={addUsername}
                              onChange={(e) => setAddUsername(e.target.value)}
-                             placeholder="Enter Username..."
+                             placeholder="Username or Net-ID (123-456)..."
                              className="w-full bg-base-navy border border-base-content/20 rounded-xl px-4 py-4 pl-12 text-lg font-mono focus:ring-2 focus:ring-primary focus:border-primary outline-none text-white"
                              disabled={scanStatus === 'scanning'}
                            />
