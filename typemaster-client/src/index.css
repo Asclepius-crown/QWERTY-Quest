@@ -18,6 +18,8 @@
   --glass-border: 255 255 255;
   --glass-border-opacity: 0.1;
   --glass-bg-opacity: 0.6;
+  --shadow-color: 0 0 0;
+  --shadow-opacity: 0.3;
 }
 
 /* Neon Theme - Cyberpunk Blue & Black */
@@ -55,22 +57,33 @@
   --color-base-muted: 161 161 170;   /* #A1A1AA (Zinc-400) */
 }
 
-/* Light Theme - Clean & Crisp (White/Slate) */
+/* Light Theme - High Contrast & Modern */
 .theme-light {
   color-scheme: light;
   
+  /* Vibrant Blue for primary actions */
   --color-primary: 37 99 235;        /* #2563EB (Blue-600) */
   --color-primary-glow: 59 130 246;  /* #3B82F6 (Blue-500) */
   --color-primary-hover: 29 78 216;  /* #1D4ED8 (Blue-700) */
   
+  /* Clean, slightly cool gray background */
   --color-base-dark: 241 245 249;    /* #F1F5F9 (Slate-100) */
-  --color-base-navy: 255 255 255;    /* #FFFFFF */
-  --color-base-content: 15 23 42;    /* #0F172A (Slate-900) */
-  --color-base-muted: 100 116 139;   /* #64748B (Slate-500) */
+  --color-base-navy: 255 255 255;    /* #FFFFFF (Pure White for cards) */
+  
+  /* High contrast text - Darker than standard slate-900 */
+  --color-base-content: 2 6 23;      /* #020617 (Slate-950) */
+  
+  /* Darker muted text for better readability on white */
+  --color-base-muted: 71 85 105;     /* #475569 (Slate-600) */
 
-  --glass-border: 0 0 0;
-  --glass-border-opacity: 0.05;
-  --glass-bg-opacity: 0.8;
+  /* Glass effect adjustments for light mode */
+  --glass-border: 0 0 0;             /* Black border */
+  --glass-border-opacity: 0.08;      /* Stronger border definition */
+  --glass-bg-opacity: 0.85;          /* Less transparency for cleaner look */
+  
+  /* Shadow adjustments */
+  --shadow-color: 148 163 184;       /* Slate-400 shadow */
+  --shadow-opacity: 0.15;            /* Softer, colored shadow */
 }
 
 body {
@@ -102,9 +115,10 @@ body {
 }
 
 .glass-card {
-  @apply backdrop-blur-lg shadow-xl;
+  @apply backdrop-blur-lg;
   background-color: rgb(var(--color-base-navy) / var(--glass-bg-opacity));
   border: 1px solid rgb(var(--glass-border) / var(--glass-border-opacity));
+  box-shadow: 0 10px 30px -10px rgb(var(--shadow-color) / var(--shadow-opacity, 0.5));
 }
 
 /* Text Glow */
