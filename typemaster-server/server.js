@@ -59,13 +59,18 @@ const seedTexts = async () => {
 };
 
 // Email transporter
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+let transporter;
+if (process.env.EMAIL_SERVICE && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: process.env.EMAIL_SERVICE,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+} else {
+  console.log('Email service not configured. Skipping transporter initialization.');
+}
 
 const app = express();
 
@@ -88,7 +93,7 @@ app.use(passport.initialize());
 
 // DB Connection
 // Forcing local connection to resolve Atlas timeout issues
-const mongoURI = 'mongodb://127.0.0.1:27017/typemaster';
+const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/typemaster';
 
 mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
   .then(async () => {

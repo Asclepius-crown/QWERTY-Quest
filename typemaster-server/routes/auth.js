@@ -13,13 +13,15 @@ const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+const transporter = (process.env.EMAIL_SERVICE && process.env.EMAIL_USER && process.env.EMAIL_PASS) 
+  ? nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    })
+  : null;
 
 // Register
 router.post('/signup', [
@@ -428,6 +430,13 @@ router.post('/forgot-password', [
       subject: 'TypeMaster Magic Login Link',
       html: `<p>Click <a href="${magicLink}">here</a> to login to TypeMaster. This link expires in 15 minutes.</p>`
     };
+    
+    if (!transporter) {
+      console.log('Email would be sent to:', email);
+      console.log('Magic Link:', magicLink);
+      return res.status(503).json({ error: 'Email service not configured. Check server logs for link (Dev Mode).' });
+    }
+
     transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
         console.error(err);
