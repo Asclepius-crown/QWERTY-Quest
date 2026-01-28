@@ -15,6 +15,13 @@ const TextSchema = new mongoose.Schema({
     enum: ['general', 'quotes', 'code', 'poetry'],
     default: 'general'
   },
+  language: {
+    type: String,
+    default: 'plain'
+  },
+  source: {
+    type: String
+  },
   length: {
     type: Number,
     default: function() { return this.content.length; }

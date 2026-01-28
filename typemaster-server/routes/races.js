@@ -65,9 +65,37 @@ router.get('/history', auth, async (req, res) => {
 // GET /api/races/leaderboard - Get global leaderboard
 router.get('/leaderboard', async (req, res) => {
   try {
-    const leaderboard = await Race.aggregate([
+    const { language } = req.query;
+    
+    let pipeline = [
       // Unwind participants to treat each player in a race individually
       { $unwind: '$participants' },
+      // Lookup text details early to filter if needed
+      {
+        $lookup: {
+          from: 'texts',
+          localField: 'text',
+          foreignField: '_id',
+          as: 'textDoc'
+        }
+      },
+      { 
+        $unwind: {
+          path: '$textDoc',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ];
+
+    // Add language filter if specified
+    if (language && language !== 'all') {
+      pipeline.push({
+        $match: { 'textDoc.language': language }
+      });
+    }
+
+    // Continue with grouping and projections
+    pipeline = pipeline.concat([
       // Sort by WPM descending
       { $sort: { 'participants.wpm': -1 } },
       // Group by user to get their single best record
@@ -77,6 +105,7 @@ router.get('/leaderboard', async (req, res) => {
           wpm: { $first: '$participants.wpm' },
           accuracy: { $first: '$participants.accuracy' },
           textId: { $first: '$text' },
+          language: { $first: '$textDoc.language' },
           date: { $first: '$createdAt' }
         }
       },
@@ -91,7 +120,7 @@ router.get('/leaderboard', async (req, res) => {
       },
       // Unwind user array
       { $unwind: '$user' },
-      // Lookup text details (so we know what they typed)
+      // Lookup text details AGAIN (or just use fields from previous group)
       {
         $lookup: {
           from: 'texts',
@@ -100,7 +129,6 @@ router.get('/leaderboard', async (req, res) => {
           as: 'text'
         }
       },
-      // Unwind text array (preserve nulls if text was deleted/custom)
       { 
         $unwind: {
           path: '$text',
@@ -117,7 +145,8 @@ router.get('/leaderboard', async (req, res) => {
           wpm: 1,
           accuracy: 1,
           textId: 1,
-          textTitle: { $ifNull: ['$text.category', 'Custom Text'] }, // Use category or default
+          language: 1,
+          textTitle: { $ifNull: ['$text.category', 'Custom Text'] },
           textContent: '$text.content',
           date: 1
         }
@@ -128,6 +157,7 @@ router.get('/leaderboard', async (req, res) => {
       { $limit: 50 }
     ]);
 
+    const leaderboard = await Race.aggregate(pipeline);
     res.json(leaderboard);
   } catch (err) {
     console.error('Leaderboard error:', err);

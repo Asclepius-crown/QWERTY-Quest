@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Keyboard, Menu, X, LogOut, ChevronDown, User, Skull, Zap, Crown, Star, Ghost, Flame, 
   Activity, Shield, Settings, BarChart2, Eye, EyeOff, UserCircle, LayoutDashboard, 
-  Trophy, Target, History, Palette, Bell, Users as UsersIcon, HelpCircle, Bug, Share2 
+  Trophy, Target, History, Palette, Bell, Users as UsersIcon, HelpCircle, Bug, Share2,
+  Bot, Sword, Diamond, Heart
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,11 +23,28 @@ const Navbar = () => {
     { id: 'avatar4', icon: Crown, color: 'text-purple-400', bg: 'bg-purple-500/20' },
     { id: 'avatar5', icon: Star, color: 'text-green-400', bg: 'bg-green-500/20' },
     { id: 'avatar6', icon: Ghost, color: 'text-base-muted', bg: 'bg-gray-500/20' },
-    { id: 'avatar7', icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/20' }
+    { id: 'avatar7', icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/20' },
+    { id: 'avatar8', icon: Bot, color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
+    { id: 'avatar9', icon: Sword, color: 'text-slate-400', bg: 'bg-slate-500/20' },
+    { id: 'avatar10', icon: Diamond, color: 'text-pink-400', bg: 'bg-pink-500/20' },
+    { id: 'avatar11', icon: Heart, color: 'text-rose-400', bg: 'bg-rose-500/20' }
   ];
 
-  const currentAvatar = avatars.find(av => av.id === user?.avatar) || avatars[0];
-  const AvatarIcon = currentAvatar.icon;
+  let currentAvatar = avatars.find(av => av.id === user?.avatar);
+  const isCustomAvatar = user?.avatar?.startsWith('/uploads');
+  
+  if (!currentAvatar && !isCustomAvatar) {
+      currentAvatar = avatars[0];
+  } else if (isCustomAvatar) {
+      // Placeholder for custom avatar to avoid errors if properties are accessed
+      currentAvatar = { 
+          id: 'custom', 
+          bg: 'bg-base-content/5', 
+          color: 'text-white' 
+      };
+  }
+
+  const AvatarIcon = currentAvatar?.icon || User;
   const stats = user?.stats || { level: 1, xp: 0, rank: 'Bronze', bestWPM: 0, avgWPM: 0 };
   const nextLevelXp = stats.level * 100;
   const xpProgress = Math.min((stats.xp / nextLevelXp) * 100, 100);
@@ -118,8 +136,12 @@ const Navbar = () => {
                     <span className="text-xs font-bold text-base-content leading-tight">{user?.username || 'User'}</span>
                     <span className="text-[10px] text-primary uppercase tracking-wider">Lvl {stats.level}</span>
                 </div>
-                <div className={`w-9 h-9 rounded-full ${currentAvatar.bg} border border-base-content/10 flex items-center justify-center relative`}>
-                  <AvatarIcon className={`w-5 h-5 ${currentAvatar.color}`} />
+                <div className={`w-9 h-9 rounded-full ${currentAvatar.bg} border border-base-content/10 flex items-center justify-center relative overflow-hidden`}>
+                  {isCustomAvatar ? (
+                    <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <AvatarIcon className={`w-5 h-5 ${currentAvatar.color}`} />
+                  )}
                   <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-base-dark ${status === 'online' ? 'bg-green-500' : 'bg-gray-500'}`}></div>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-base-muted group-hover:text-base-content transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
@@ -139,8 +161,12 @@ const Navbar = () => {
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[50px] rounded-full pointer-events-none"></div>
                         
                         <div className="flex items-center gap-4 relative z-10">
-                            <div className={`w-14 h-14 rounded-xl ${currentAvatar.bg} flex items-center justify-center border border-base-content/10 shadow-lg`}>
-                                <AvatarIcon className={`w-7 h-7 ${currentAvatar.color}`} />
+                            <div className={`w-14 h-14 rounded-xl ${currentAvatar.bg} flex items-center justify-center border border-base-content/10 shadow-lg overflow-hidden`}>
+                                {isCustomAvatar ? (
+                                  <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                                ) : (
+                                  <AvatarIcon className={`w-7 h-7 ${currentAvatar.color}`} />
+                                )}
                             </div>
                             <div className="flex-1">
                                 <h3 className="text-lg font-bold text-base-content leading-none mb-1">{user?.username}</h3>
@@ -245,8 +271,12 @@ const Navbar = () => {
              {isLoggedIn ? (
                <>
                  <div className="w-full py-4 text-base-content border border-base-content/20 rounded-xl font-bold text-center flex items-center justify-center gap-2">
-                   <div className={`w-8 h-8 rounded-full ${currentAvatar.bg} flex items-center justify-center`}>
-                     <AvatarIcon className={`w-4 h-4 ${currentAvatar.color}`} />
+                   <div className={`w-8 h-8 rounded-full ${currentAvatar.bg} flex items-center justify-center overflow-hidden`}>
+                     {isCustomAvatar ? (
+                       <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                     ) : (
+                       <AvatarIcon className={`w-4 h-4 ${currentAvatar.color}`} />
+                     )}
                    </div>
                    {user?.username || 'User'}
                  </div>

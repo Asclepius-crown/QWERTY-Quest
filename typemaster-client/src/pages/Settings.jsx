@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Shield, Gamepad2, Keyboard, Palette, Volume2, Bell, Lock, Cpu, 
-  Save, RotateCcw, Trash2, Check, Smartphone, Monitor, Globe, Mail, Eye, Download, AlertTriangle
+  Save, RotateCcw, Trash2, Check, Smartphone, Monitor, Globe, Mail, Eye, Download, AlertTriangle,
+  Skull, Zap, Crown, Star, Ghost, Flame, Bot, Sword, Diamond, Heart, X
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
@@ -21,10 +22,50 @@ const tabs = [
 ];
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, uploadAvatar, updateAvatar } = useAuth();
   const { settings, updateSettings, resetSettings } = useSettings();
   const [activeTab, setActiveTab] = useState('account');
   const [isSaved, setIsSaved] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const avatars = [
+    { id: 'avatar1', icon: User, color: 'text-blue-400', bg: 'bg-blue-500/20' },
+    { id: 'avatar2', icon: Skull, color: 'text-red-400', bg: 'bg-red-500/20' },
+    { id: 'avatar3', icon: Zap, color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
+    { id: 'avatar4', icon: Crown, color: 'text-purple-400', bg: 'bg-purple-500/20' },
+    { id: 'avatar5', icon: Star, color: 'text-green-400', bg: 'bg-green-500/20' },
+    { id: 'avatar6', icon: Ghost, color: 'text-base-muted', bg: 'bg-gray-500/20' },
+    { id: 'avatar7', icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/20' },
+    { id: 'avatar8', icon: Bot, color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
+    { id: 'avatar9', icon: Sword, color: 'text-slate-400', bg: 'bg-slate-500/20' },
+    { id: 'avatar10', icon: Diamond, color: 'text-pink-400', bg: 'bg-pink-500/20' },
+    { id: 'avatar11', icon: Heart, color: 'text-rose-400', bg: 'bg-rose-500/20' }
+  ];
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File size too large (max 2MB)");
+        return;
+      }
+      const result = await uploadAvatar(file);
+      if (result.success) {
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 2000);
+      } else {
+        alert(result.error);
+      }
+    }
+  };
+
+  const handleAvatarSelect = async (avatarId) => {
+    const result = await updateAvatar(avatarId);
+    if (result.success) {
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    }
+  };
 
   const handleSave = () => {
     // Settings are auto-saved to context/localStorage on change, 
@@ -106,20 +147,94 @@ const Settings = () => {
 
   // --- TAB CONTENT COMPONENTS ---
 
-  const AccountTab = () => (
+  const AccountTab = () => {
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    let currentAvatarObj = avatars.find(av => av.id === user?.avatar);
+    const isCustomAvatar = user?.avatar?.startsWith('/uploads');
+    
+    // Fallback if not found and not custom
+    if (!currentAvatarObj && !isCustomAvatar) {
+        currentAvatarObj = avatars[0];
+    }
+    
+    const CurrentIcon = currentAvatarObj?.icon || User;
+    const currentBg = currentAvatarObj?.bg || 'bg-base-navy';
+    const currentColor = currentAvatarObj?.color || 'text-base-muted';
+
+    return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Account Settings" desc="Manage your identity and public profile information." />
       
       <SettingCard title="Public Profile">
-        <div className="flex items-start gap-6 mb-6">
-          <div className="w-24 h-24 rounded-2xl bg-base-navy border-2 border-base-content/10 flex items-center justify-center">
-            <User className="w-10 h-10 text-base-muted" />
-          </div>
-          <div className="flex-1">
-            <button className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-bold transition-all mb-2">Upload New Avatar</button>
-            <p className="text-xs text-base-muted">JPG, GIF or PNG. Max size 2MB.</p>
-          </div>
+        <div className="flex flex-col md:flex-row items-start gap-8 mb-8">
+            {/* Current Avatar Display */}
+            <div className="flex flex-col items-center gap-3">
+                <div className={`w-32 h-32 rounded-2xl ${isCustomAvatar ? 'bg-base-navy' : currentBg} border-2 border-base-content/10 flex items-center justify-center overflow-hidden relative group`}>
+                     {isCustomAvatar ? (
+                        <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar" className="w-full h-full object-cover" />
+                     ) : (
+                        <CurrentIcon className={`w-12 h-12 ${currentColor}`} />
+                     )}
+                     
+                     {/* Overlay for actions on hover */}
+                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 transition-opacity">
+                        <button 
+                            onClick={() => setIsPreviewOpen(true)}
+                            className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition-colors"
+                            title="Preview"
+                        >
+                            <Eye className="w-4 h-4" />
+                        </button>
+                        <button 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3 py-1.5 bg-primary hover:bg-primary-hover rounded-lg text-white text-xs font-bold transition-colors"
+                        >
+                            Change
+                        </button>
+                     </div>
+                </div>
+                <div className="text-center">
+                    <button 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-xs font-bold text-primary hover:text-primary-hover transition-colors"
+                    >
+                        Upload Custom
+                    </button>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handleFileChange} 
+                        className="hidden" 
+                        accept="image/png, image/jpeg, image/gif"
+                    />
+                </div>
+            </div>
+
+            {/* Avatar Selection Grid */}
+            <div className="flex-1">
+                <label className="block text-sm font-medium text-base-muted mb-3">Choose Avatar</label>
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                    {avatars.map((av) => {
+                        const Icon = av.icon;
+                        const isSelected = user?.avatar === av.id;
+                        return (
+                            <button
+                                key={av.id}
+                                onClick={() => handleAvatarSelect(av.id)}
+                                className={`aspect-square rounded-xl flex items-center justify-center border-2 transition-all ${
+                                    isSelected 
+                                    ? `${av.bg} border-primary shadow-[0_0_15px_rgba(59,130,246,0.3)] scale-105` 
+                                    : 'bg-base-content/5 border-transparent hover:border-base-content/10 hover:bg-base-content/10'
+                                }`}
+                            >
+                                <Icon className={`w-6 h-6 ${isSelected ? av.color : 'text-base-muted'}`} />
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
         </div>
+
         <div className="grid md:grid-cols-2 gap-4">
           <Input label="Username" value={user?.username} />
           <Input label="Display Title" placeholder="e.g. Speed Demon" />
@@ -134,8 +249,44 @@ const Settings = () => {
           <Input label="Phone Number" placeholder="+1 (555) 000-0000" type="tel" />
         </div>
       </SettingCard>
+
+      {/* Preview Modal */}
+      <AnimatePresence>
+        {isPreviewOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setIsPreviewOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9 }} 
+              animate={{ scale: 1 }} 
+              exit={{ scale: 0.9 }}
+              className="bg-base-dark border border-white/10 p-2 rounded-2xl max-w-lg w-full aspect-square flex items-center justify-center relative overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isCustomAvatar ? (
+                 <img src={`${import.meta.env.VITE_API_BASE_URL}${user.avatar}`} alt="Avatar Preview" className="w-full h-full object-cover rounded-xl" />
+              ) : (
+                 <div className={`w-full h-full flex items-center justify-center rounded-xl ${currentBg}`}>
+                    <CurrentIcon className={`w-48 h-48 ${currentColor}`} />
+                 </div>
+              )}
+               <button 
+                onClick={() => setIsPreviewOpen(false)}
+                className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
+  };
 
   const SecurityTab = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

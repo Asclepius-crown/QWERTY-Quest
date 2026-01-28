@@ -1,11 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
-import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard, Sword } from 'lucide-react';
+import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard, Sword, Github, Code } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
 import { useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
 import Navbar from '../components/Navbar';
+import Prism from 'prismjs';
+import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-rust';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-cpp';
+import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-markup';
 
 const Play = () => {
   const { user } = useAuth();
@@ -26,6 +38,7 @@ const Play = () => {
   const [gameState, setGameState] = useState('waiting');
   const [text, setText] = useState(location.state?.textContent || '');
   const [textId, setTextId] = useState(location.state?.textId || null);
+  const [language, setLanguage] = useState('plain');
   const [customText, setCustomText] = useState('');
   const [userInput, setUserInput] = useState('');
   const [socket, setSocket] = useState(null);
@@ -261,7 +274,7 @@ const Play = () => {
 
   useEffect(() => {
     if (gameState === 'completed' && user) {
-      if (mode === 'solo') {
+      if (mode === 'solo' || mode === 'github') {
         saveResults();
       } else if (mode === 'quick-race' && raceId && socket && user) {
         const timeTaken = 60 - timeLeft;
@@ -330,11 +343,29 @@ const Play = () => {
         const data = await response.json();
         setText(data.text.content);
         setTextId(data.text._id);
+        setLanguage('plain');
         setGameState('active');
         setStartTime(Date.now());
       } catch (err) {
         console.error(err);
         alert('Failed to load text. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    } else if (mode === 'github') {
+      setLoading(true);
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/texts/github`);
+        if (!response.ok) throw new Error('Failed to fetch GitHub code');
+        const data = await response.json();
+        setText(data.text.content);
+        setTextId(data.text._id);
+        setLanguage(data.text.language || 'javascript');
+        setGameState('active');
+        setStartTime(Date.now());
+      } catch (err) {
+        console.error(err);
+        alert('Failed to load GitHub code. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -365,6 +396,7 @@ const Play = () => {
       }
       setText(customText.trim());
       setTextId(null);
+      setLanguage('plain');
       setGameState('active');
       setStartTime(Date.now());
     }
@@ -391,15 +423,32 @@ const Play = () => {
 
     if (lastChar === text[currentIndex]) {
       playKeySound();
-      setCurrentIndex(prev => prev + 1);
-      setUserInput(value);
+      let nextIndex = currentIndex + 1;
+      let nextUserInput = value;
+
+      // Auto-indentation logic
+      if (lastChar === '\n' && (mode === 'github' || language !== 'plain')) {
+          // Check if next characters are whitespace and skip them automatically
+          let i = nextIndex;
+          while (i < text.length && (text[i] === ' ' || text[i] === '\t')) {
+              i++;
+          }
+          if (i > nextIndex) {
+              const indentation = text.substring(nextIndex, i);
+              nextIndex = i;
+              nextUserInput += indentation;
+          }
+      }
+
+      setCurrentIndex(nextIndex);
+      setUserInput(nextUserInput);
       setStreak(prev => prev + 1);
       
       if (settings.caretAnimation) {
         controls.start('pulse');
       }
 
-      if (currentIndex + 1 === text.length) {
+      if (nextIndex >= text.length) {
         setGameState('completed');
         playCompleteSound();
       }
@@ -442,6 +491,54 @@ const Play = () => {
   };
 
   const renderText = () => {
+    if (language !== 'plain' && language !== '') {
+        // Highlighting logic
+        const tokens = Prism.tokenize(text, Prism.languages[language] || Prism.languages.javascript);
+        
+        let charIndex = 0;
+        const result = [];
+
+        const processToken = (token, type) => {
+            if (typeof token === 'string') {
+                for (let char of token) {
+                    const idx = charIndex++;
+                    let className = 'text-base-muted';
+                    let style = {};
+                    
+                    // Prism color mapping (simplified)
+                    if (type) {
+                        // We rely on CSS classes from Prism theme
+                        className = `token ${type}`;
+                    }
+
+                    if (idx < currentIndex) {
+                        className = idx < userInput.length && userInput[idx] === char ? 'text-green-400 font-bold' : 'text-red-400 bg-red-900/20';
+                    } else if (idx === currentIndex) {
+                        className = 'bg-primary/50 text-white animate-pulse';
+                    }
+
+                    // Fog Modifier
+                    if (isFog && idx > currentIndex + 8) {
+                        className += ' blur-[4px] opacity-30';
+                    }
+
+                    result.push(
+                        <span key={idx} className={className} style={{ fontSize: settings.fontSize === 'Large' ? '1.5rem' : '1.25rem', fontFamily: 'JetBrains Mono, monospace' }}>
+                            {char === '\n' ? '↵\n' : char}
+                        </span>
+                    );
+                }
+            } else if (Array.isArray(token)) {
+                token.forEach(t => processToken(t, type));
+            } else {
+                processToken(token.content, token.type);
+            }
+        };
+
+        tokens.forEach(token => processToken(token));
+        return result;
+    }
+
     return text.split('').map((char, index) => {
       let className = 'text-base-muted';
       if (index < currentIndex) {
@@ -514,36 +611,39 @@ const Play = () => {
               className="glass-card p-8 rounded-2xl border border-base-content/5 text-center"
             >
               <h2 className="text-2xl font-bold mb-6">Choose Your Race Mode</h2>
-              <div className="grid grid-cols-3 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <button
                   onClick={() => setMode('solo')}
-                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'solo' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
+                  className={`p-4 rounded-xl border transition-all touch-manipulation ${mode === 'solo' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
                 >
                   <User className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <div className="font-bold">Solo Practice</div>
-                  <div className="text-sm text-base-muted">Race against time</div>
+                  <div className="font-bold">Solo</div>
+                </button>
+                <button
+                  onClick={() => setMode('github')}
+                  className={`p-4 rounded-xl border transition-all touch-manipulation ${mode === 'github' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
+                >
+                  <Github className="w-8 h-8 mx-auto mb-2 text-white" />
+                  <div className="font-bold">GitHub</div>
                 </button>
                 <button
                   onClick={() => setMode('quick-race')}
-                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'quick-race' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
+                  className={`p-4 rounded-xl border transition-all touch-manipulation ${mode === 'quick-race' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
                 >
                   <Users className="w-8 h-8 mx-auto mb-2 text-accent-purple" />
-                  <div className="font-bold">Quick Race</div>
-                  <div className="text-sm text-base-muted">Compete with others</div>
+                  <div className="font-bold">Multiplayer</div>
                 </button>
                 <button
                   onClick={() => setMode('custom')}
-                  className={`p-4 md:p-6 rounded-xl border transition-all touch-manipulation ${mode === 'custom' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
+                  className={`p-4 rounded-xl border transition-all touch-manipulation ${mode === 'custom' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
                 >
                   <Keyboard className="w-8 h-8 mx-auto mb-2 text-green-400" />
-                  <div className="font-bold">Custom Text</div>
-                  <div className="text-sm text-base-muted">Use your own text</div>
+                  <div className="font-bold">Custom</div>
                 </button>
               </div>
 
-              {(mode === 'solo' || mode === 'quick-race') && (
+              {(mode === 'solo' || mode === 'quick-race' || mode === 'github') && (
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-base-content/80 mb-2">Select Difficulty:</label>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-base-content/80 mb-1">Difficulty</label>
@@ -574,7 +674,7 @@ const Play = () => {
               )}
 
               {mode === 'custom' && (
-                <div className="mb-6">
+                <div className="mb-6 text-left">
                   <label className="block text-sm font-medium text-base-content/80 mb-2">Enter your custom text:</label>
                   <textarea
                     value={customText}
@@ -592,7 +692,7 @@ const Play = () => {
                   className="px-8 py-4 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-base-content rounded-xl font-bold text-xl shadow-lg transition-all flex items-center gap-3"
                 >
                   <PlayIcon className="w-6 h-6" />
-                  {loading ? 'Loading...' : mode === 'quick-race' ? 'Find Match' : 'Start Race'}
+                  {loading ? 'Loading...' : mode === 'quick-race' ? 'Find Match' : mode === 'github' ? 'Fetch Code' : 'Start Race'}
                 </button>
                 <button
                   onClick={fetchHistory}
@@ -659,6 +759,14 @@ const Play = () => {
                 </div>
               </div>
 
+              {/* Language Indicator */}
+              {language !== 'plain' && (
+                  <div className="flex items-center gap-2 text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full w-fit">
+                      <Code className="w-4 h-4" />
+                      {language.toUpperCase()} MODE
+                  </div>
+              )}
+
               {/* Opponents */}
               {opponents.length > 0 && settings.liveWpm && ( // Respect liveWpm setting
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -701,7 +809,7 @@ const Play = () => {
 
               {/* Text Display */}
               <div className="glass-card p-8 rounded-xl border border-base-content/5">
-                <div className="text-lg md:text-xl leading-relaxed font-mono mb-6 min-h-[120px] md:min-h-[150px]">
+                <div className="text-lg md:text-xl leading-relaxed font-mono mb-6 min-h-[120px] md:min-h-[150px] whitespace-pre-wrap">
                   {renderText()}
                 </div>
                 <motion.input

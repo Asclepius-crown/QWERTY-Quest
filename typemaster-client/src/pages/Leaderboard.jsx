@@ -10,15 +10,32 @@ const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedRow, setExpandedRow] = useState(null);
+  const [selectedLanguage, setSelectedLanguage] = useState('all');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, []);
+  const languages = [
+    { id: 'all', label: 'All Languages' },
+    { id: 'plain', label: 'Plain Text' },
+    { id: 'javascript', label: 'JavaScript' },
+    { id: 'typescript', label: 'TypeScript' },
+    { id: 'python', label: 'Python' },
+    { id: 'rust', label: 'Rust' },
+    { id: 'go', label: 'Go' },
+    { id: 'java', label: 'Java' },
+    { id: 'cpp', label: 'C++' }
+  ];
 
-  const fetchLeaderboard = async () => {
+  useEffect(() => {
+    fetchLeaderboard(selectedLanguage);
+  }, [selectedLanguage]);
+
+  const fetchLeaderboard = async (lang) => {
+    setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/races/leaderboard`);
+      const url = lang === 'all' 
+        ? `${import.meta.env.VITE_API_BASE_URL}/races/leaderboard`
+        : `${import.meta.env.VITE_API_BASE_URL}/races/leaderboard?language=${lang}`;
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setLeaders(data);
@@ -144,7 +161,24 @@ const Leaderboard = () => {
           className="text-center mb-16"
         >
           <h1 className="text-5xl font-bold mb-4">Global <span className="text-primary-glow">Leaderboard</span></h1>
-          <p className="text-base-muted text-lg">The fastest fingers in the world. Can you beat them?</p>
+          <p className="text-base-muted text-lg mb-8">The fastest fingers in the world. Can you beat them?</p>
+
+          {/* Language Selector */}
+          <div className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto">
+            {languages.map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => setSelectedLanguage(lang.id)}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${
+                  selectedLanguage === lang.id
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
+                    : 'bg-base-content/5 text-base-muted hover:bg-base-content/10 hover:text-base-content'
+                }`}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
         {loading ? (

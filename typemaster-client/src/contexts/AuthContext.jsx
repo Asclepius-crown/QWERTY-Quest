@@ -133,6 +133,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const uploadAvatar = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/user/avatar/upload`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        return { success: true };
+      } else {
+        const errorData = await response.json();
+        return { success: false, error: errorData.error || 'Avatar upload failed' };
+      }
+    } catch (error) {
+      return { success: false, error: 'Network error' };
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       isLoggedIn,
@@ -142,6 +166,7 @@ export const AuthProvider = ({ children }) => {
       signup,
       logout,
       updateAvatar,
+      uploadAvatar,
       checkAuthStatus
     }}>
       {children}
