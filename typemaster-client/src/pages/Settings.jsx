@@ -21,13 +21,6 @@ const tabs = [
   { id: 'advanced', label: 'Advanced', icon: Cpu },
 ];
 
-const Settings = () => {
-  const { user, uploadAvatar, updateAvatar } = useAuth();
-  const { settings, updateSettings, resetSettings } = useSettings();
-  const [activeTab, setActiveTab] = useState('account');
-  const [isSaved, setIsSaved] = useState(false);
-  const fileInputRef = useRef(null);
-
   const avatars = [
     { id: 'avatar1', icon: User, color: 'text-blue-400', bg: 'bg-blue-500/20' },
     { id: 'avatar2', icon: Skull, color: 'text-red-400', bg: 'bg-red-500/20' },
@@ -41,38 +34,6 @@ const Settings = () => {
     { id: 'avatar10', icon: Diamond, color: 'text-pink-400', bg: 'bg-pink-500/20' },
     { id: 'avatar11', icon: Heart, color: 'text-rose-400', bg: 'bg-rose-500/20' }
   ];
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("File size too large (max 2MB)");
-        return;
-      }
-      const result = await uploadAvatar(file);
-      if (result.success) {
-        setIsSaved(true);
-        setTimeout(() => setIsSaved(false), 2000);
-      } else {
-        alert(result.error);
-      }
-    }
-  };
-
-  const handleAvatarSelect = async (avatarId) => {
-    const result = await updateAvatar(avatarId);
-    if (result.success) {
-      setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
-    }
-  };
-
-  const handleSave = () => {
-    // Settings are auto-saved to context/localStorage on change, 
-    // but this gives visual feedback.
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
-  };
 
   const SectionTitle = ({ title, desc }) => (
     <div className="mb-6">
@@ -103,12 +64,13 @@ const Settings = () => {
     </div>
   );
 
-  const Input = ({ label, value, type = "text", placeholder }) => (
+const Input = ({ label, value, type = "text", placeholder, onChange }) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-base-muted mb-1">{label}</label>
       <input 
         type={type} 
-        defaultValue={value} 
+        value={value} 
+        onChange={onChange}
         placeholder={placeholder}
         className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
       />
@@ -145,21 +107,26 @@ const Settings = () => {
     </div>
   );
 
-  // --- TAB CONTENT COMPONENTS ---
-
-  const AccountTab = () => {
+const AccountTab = ({ user, fileInputRef, handleFileChange, handleAvatarSelect }) => {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    let currentAvatarObj = avatars.find(av => av.id === user?.avatar);
+    const [formData, setFormData] = useState({
+      username: user?.username || '',
+      displayTitle: user?.displayTitle || '',
+      bio: user?.bio || '',
+      country: user?.country || 'Global',
+      email: user?.email || '',
+      phone: user?.phone || ''
+    });
+    
+    const currentAvatarObj = avatars.find(av => av.id === user?.avatar);
     const isCustomAvatar = user?.avatar?.startsWith('/uploads');
-    
-    // Fallback if not found and not custom
-    if (!currentAvatarObj && !isCustomAvatar) {
-        currentAvatarObj = avatars[0];
-    }
-    
     const CurrentIcon = currentAvatarObj?.icon || User;
     const currentBg = currentAvatarObj?.bg || 'bg-base-navy';
     const currentColor = currentAvatarObj?.color || 'text-base-muted';
+
+    const handleInputChange = (field) => (e) => {
+      setFormData(prev => ({ ...prev, [field]: e.target.value }));
+    };
 
     return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -235,18 +202,48 @@ const Settings = () => {
             </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          <Input label="Username" value={user?.username} />
-          <Input label="Display Title" placeholder="e.g. Speed Demon" />
-          <Input label="Bio" placeholder="Tell the world about yourself..." />
-          <Select label="Country / Region" options={['Global', 'North America', 'Europe', 'Asia']} value="Global" onChange={() => {}} />
+<div className="grid md:grid-cols-2 gap-4">
+          <Input 
+            label="Username" 
+            value={formData.username} 
+            onChange={handleInputChange('username')}
+          />
+          <Input 
+            label="Display Title" 
+            value={formData.displayTitle}
+            placeholder="e.g. Speed Demon"
+            onChange={handleInputChange('displayTitle')}
+          />
+          <Input 
+            label="Bio" 
+            value={formData.bio}
+            placeholder="Tell the world about yourself..."
+            onChange={handleInputChange('bio')}
+          />
+          <Select 
+            label="Country / Region" 
+            options={['Global', 'North America', 'Europe', 'Asia']} 
+            value={formData.country} 
+            onChange={(v) => setFormData(prev => ({ ...prev, country: v }))}
+          />
         </div>
       </SettingCard>
 
-      <SettingCard title="Contact Info">
+<SettingCard title="Contact Info">
         <div className="grid md:grid-cols-2 gap-4">
-          <Input label="Email Address" value={user?.email} type="email" />
-          <Input label="Phone Number" placeholder="+1 (555) 000-0000" type="tel" />
+          <Input 
+            label="Email Address" 
+            value={formData.email} 
+            type="email" 
+            onChange={handleInputChange('email')}
+          />
+          <Input 
+            label="Phone Number" 
+            value={formData.phone}
+            placeholder="+1 (555) 000-0000" 
+            type="tel"
+            onChange={handleInputChange('phone')}
+          />
         </div>
       </SettingCard>
 
@@ -284,11 +281,162 @@ const Settings = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
-  );
-  };
+{/* Password Change Modal */}
+      <AnimatePresence>
+        {isPasswordModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setIsPasswordModalOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-base-dark border border-white/10 p-6 rounded-2xl max-w-md w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-base-content mb-4">Change Password</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-base-muted mb-1">Current Password</label>
+                  <input
+                    type="password"
+                    value={passwordData.currentPassword}
+                    onChange={handlePasswordInputChange('currentPassword')}
+                    className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+                    placeholder="Enter current password"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-base-muted mb-1">New Password</label>
+                  <input
+                    type="password"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordInputChange('newPassword')}
+                    className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+                    placeholder="Enter new password (min 8 chars)"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-base-muted mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordInputChange('confirmPassword')}
+                    className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+              </div>
 
-  const SecurityTab = () => (
+              {passwordError && (
+                <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="text-red-400 text-sm">{passwordError}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordError('');
+                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                  }}
+                  className="px-4 py-2 border border-base-content/10 hover:bg-base-content/5 rounded-lg text-sm transition-all"
+                  disabled={isChangingPassword}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordChange}
+                  className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isChangingPassword}
+                >
+                  {isChangingPassword ? 'Changing...' : 'Change Password'}
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-base-muted hover:text-base-content transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+    );
+};
+
+const SecurityTab = () => {
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordData, setPasswordData] = useState({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    const [passwordError, setPasswordError] = useState('');
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+    const handlePasswordChange = async () => {
+      try {
+        setPasswordError('');
+        setIsChangingPassword(true);
+
+        // Validation
+        if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+          throw new Error('All fields are required');
+        }
+
+        if (passwordData.currentPassword === passwordData.newPassword) {
+          throw new Error('New password must be different from current password');
+        }
+
+        if (passwordData.newPassword.length < 8) {
+          throw new Error('Password must be at least 8 characters long');
+        }
+
+        if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword)) {
+          throw new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+        }
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+          throw new Error('New passwords do not match');
+        }
+
+        // Use AuthContext changePassword function
+        const result = await changePassword(passwordData.currentPassword, passwordData.newPassword);
+
+        if (result.success) {
+          // Password changed successfully
+          setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+          setIsPasswordModalOpen(false);
+          alert('Password changed successfully!');
+        } else {
+          throw new Error(result.error);
+        }
+        
+      } catch (error) {
+        setPasswordError(error.message);
+      } finally {
+        setIsChangingPassword(false);
+      }
+    };
+
+    const handlePasswordInputChange = (field) => (e) => {
+      setPasswordData(prev => ({ ...prev, [field]: e.target.value }));
+      setPasswordError(''); // Clear error on input
+    };
+
+    return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Security & Login" desc="Protect your account and manage sessions." />
       
@@ -298,7 +446,12 @@ const Settings = () => {
             <div className="font-bold text-base-content">Change Password</div>
             <div className="text-xs text-base-muted">Last changed 3 months ago</div>
           </div>
-          <button className="px-4 py-2 border border-base-content/10 hover:bg-base-content/5 rounded-lg text-sm transition-all">Update</button>
+          <button 
+            onClick={() => setIsPasswordModalOpen(true)}
+            className="px-4 py-2 border border-base-content/10 hover:bg-base-content/5 rounded-lg text-sm transition-all"
+          >
+            Update
+          </button>
         </div>
       </SettingCard>
 
@@ -315,7 +468,7 @@ const Settings = () => {
         </div>
       </SettingCard>
 
-      <SettingCard title="Active Sessions">
+<SettingCard title="Active Sessions">
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 bg-base-content/5 rounded-lg">
             <div className="flex items-center gap-3">
@@ -331,10 +484,103 @@ const Settings = () => {
           <RotateCcw className="w-4 h-4" /> Log out of all devices
         </button>
       </SettingCard>
-    </motion.div>
-  );
 
-  const GameplayTab = () => (
+      {/* Password Change Modal */}
+      <AnimatePresence>
+        {isPasswordModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            onClick={() => setIsPasswordModalOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-base-dark border border-white/10 p-6 rounded-2xl max-w-md w-full relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold text-base-content mb-4">Change Password</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-base-muted mb-1">Current Password</label>
+                  <input
+                    type="password"
+                    value={passwordData.currentPassword}
+                    onChange={handlePasswordInputChange('currentPassword')}
+                    className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+                    placeholder="Enter current password"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-base-muted mb-1">New Password</label>
+                  <input
+                    type="password"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordInputChange('newPassword')}
+                    className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+                    placeholder="Enter new password (min 8 chars)"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-base-muted mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordInputChange('confirmPassword')}
+                    className="w-full bg-base-navy/30 border border-base-content/10 rounded-lg px-4 py-2 text-base-content focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all outline-none"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+              </div>
+
+              {passwordError && (
+                <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="text-red-400 text-sm">{passwordError}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordError('');
+                    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                  }}
+                  className="px-4 py-2 border border-base-content/10 hover:bg-base-content/5 rounded-lg text-sm transition-all"
+                  disabled={isChangingPassword}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordChange}
+                  className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isChangingPassword}
+                >
+                  {isChangingPassword ? 'Changing...' : 'Change Password'}
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setIsPasswordModalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-base-muted hover:text-base-content transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+);
+  };
+
+  const GameplayTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Gameplay Settings" desc="Customize your race experience." />
       
@@ -366,11 +612,11 @@ const Settings = () => {
       </SettingCard>
 
       <SettingCard title="Matchmaking">
-        <Select 
+<Select 
           label="Preferred Region" 
           options={['Auto (Best Latency)', 'US East', 'Europe', 'Asia']} 
-          value="Auto (Best Latency)" 
-          onChange={() => {}}
+          value={settings.preferredRegion || 'Auto (Best Latency)'} 
+          onChange={(v) => updateSettings({ preferredRegion: v })}
         />
         <Toggle 
           label="Cross-Platform Play" 
@@ -382,7 +628,7 @@ const Settings = () => {
     </motion.div>
   );
 
-  const TypingTab = () => (
+  const TypingTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Typing Preferences" desc="Fine-tune your keyboard feel." />
       
@@ -440,7 +686,7 @@ const Settings = () => {
     </motion.div>
   );
 
-  const AppearanceTab = () => (
+  const AppearanceTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Appearance" desc="Make the platform yours." />
       
@@ -491,7 +737,7 @@ const Settings = () => {
     </motion.div>
   );
 
-  const AudioTab = () => (
+  const AudioTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Audio Settings" desc="Control the soundscape of your races." />
       
@@ -510,7 +756,7 @@ const Settings = () => {
     </motion.div>
   );
 
-  const NotificationsTab = () => (
+  const NotificationsTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Notifications" desc="Manage how and when we contact you." />
       
@@ -527,7 +773,7 @@ const Settings = () => {
     </motion.div>
   );
 
-  const PrivacyTab = () => (
+  const PrivacyTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Privacy & Social" desc="Control your visibility and data." />
       
@@ -551,7 +797,7 @@ const Settings = () => {
     </motion.div>
   );
 
-  const AdvancedTab = () => (
+  const AdvancedTab = ({ settings, updateSettings }) => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <SectionTitle title="Advanced Settings" desc="Developer tools and system utilities." />
       
@@ -594,6 +840,60 @@ const Settings = () => {
       </div>
     </motion.div>
   );
+
+const Settings = () => {
+  const { user, uploadAvatar, updateAvatar, changePassword } = useAuth();
+  const { settings, updateSettings, resetSettings } = useSettings();
+  const [activeTab, setActiveTab] = useState('account');
+  const [isSaved, setIsSaved] = useState(false);
+  const fileInputRef = useRef(null);
+
+const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        if (file.size > 2 * 1024 * 1024) {
+          throw new Error("File size too large (max 2MB)");
+        }
+        const result = await uploadAvatar(file);
+        if (result.success) {
+          setIsSaved(true);
+          setTimeout(() => setIsSaved(false), 2000);
+        } else {
+          throw new Error(result.error || "Upload failed");
+        }
+      } catch (error) {
+        console.error("Avatar upload error:", error);
+        alert(error.message || "Upload failed. Please try again.");
+      } finally {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    }
+  };
+
+const handleAvatarSelect = async (avatarId) => {
+    try {
+      const result = await updateAvatar(avatarId);
+      if (result.success) {
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 2000);
+      } else {
+        throw new Error(result.error || "Failed to update avatar");
+      }
+    } catch (error) {
+      console.error("Avatar update error:", error);
+      alert(error.message || "Failed to update avatar. Please try again.");
+    }
+  };
+
+  const handleSave = () => {
+    // Settings are auto-saved to context/localStorage on change, 
+    // but this gives visual feedback.
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
 
   return (
     <div className="min-h-screen bg-base-dark text-base-content font-sans">
@@ -638,15 +938,15 @@ const Settings = () => {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
               >
-                {activeTab === 'account' && <AccountTab />}
+                {activeTab === 'account' && <AccountTab user={user} fileInputRef={fileInputRef} handleFileChange={handleFileChange} handleAvatarSelect={handleAvatarSelect} />}
                 {activeTab === 'security' && <SecurityTab />}
-                {activeTab === 'gameplay' && <GameplayTab />}
-                {activeTab === 'typing' && <TypingTab />}
-                {activeTab === 'appearance' && <AppearanceTab />}
-                {activeTab === 'audio' && <AudioTab />}
-                {activeTab === 'notifications' && <NotificationsTab />}
-                {activeTab === 'privacy' && <PrivacyTab />}
-                {activeTab === 'advanced' && <AdvancedTab />}
+                {activeTab === 'gameplay' && <GameplayTab settings={settings} updateSettings={updateSettings} />}
+                {activeTab === 'typing' && <TypingTab settings={settings} updateSettings={updateSettings} />}
+                {activeTab === 'appearance' && <AppearanceTab settings={settings} updateSettings={updateSettings} />}
+                {activeTab === 'audio' && <AudioTab settings={settings} updateSettings={updateSettings} />}
+                {activeTab === 'notifications' && <NotificationsTab settings={settings} updateSettings={updateSettings} />}
+                {activeTab === 'privacy' && <PrivacyTab settings={settings} updateSettings={updateSettings} />}
+                {activeTab === 'advanced' && <AdvancedTab settings={settings} updateSettings={updateSettings} />}
               </motion.div>
             </AnimatePresence>
 

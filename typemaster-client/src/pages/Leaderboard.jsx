@@ -5,6 +5,67 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/Navbar';
 
+  const PodiumItem = ({ player, position, handleChallenge }) => {
+    const isFirst = position === 1;
+    const isSecond = position === 2;
+    const isThird = position === 3;
+
+    let height = 'h-32';
+    let color = 'bg-gray-700';
+    let iconColor = 'text-base-muted';
+    let glow = '';
+
+    if (isFirst) {
+      height = 'h-48';
+      color = 'bg-yellow-500/20 border-yellow-500/50';
+      iconColor = 'text-yellow-400';
+      glow = 'shadow-[0_0_30px_rgba(234,179,8,0.3)]';
+    } else if (isSecond) {
+      height = 'h-40';
+      color = 'bg-gray-300/20 border-gray-300/50';
+      iconColor = 'text-base-content/80';
+    } else if (isThird) {
+      height = 'h-36';
+      color = 'bg-orange-700/20 border-orange-700/50';
+      iconColor = 'text-orange-500';
+    }
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: position * 0.2 }}
+        className={`flex flex-col items-center justify-end ${isFirst ? '-mt-12 z-10' : ''}`}
+      >
+        <div className="flex flex-col items-center mb-4">
+          <div className={`relative ${isFirst ? 'w-24 h-24' : 'w-20 h-20'} rounded-full border-4 ${isFirst ? 'border-yellow-500' : isSecond ? 'border-gray-300' : 'border-orange-700'} overflow-hidden mb-2 bg-base-navy`}>
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/10 to-transparent">
+               <User className={`w-1/2 h-1/2 ${iconColor}`} />
+            </div>
+            {isFirst && (
+              <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                <Crown className="w-12 h-12 text-yellow-400 fill-current animate-bounce" />
+              </div>
+            )}
+          </div>
+          <div className="text-xl font-bold">{player.username}</div>
+          <div className="text-primary font-mono font-bold text-2xl">{player.wpm} WPM</div>
+        </div>
+        
+        <div className={`w-32 md:w-40 ${height} ${color} ${glow} border-t border-x rounded-t-lg backdrop-blur-sm flex flex-col items-center justify-center relative group`}>
+           <div className={`text-4xl font-bold ${iconColor} opacity-50`}>{position}</div>
+           
+           <button 
+             onClick={() => handleChallenge(player)}
+             className="absolute -bottom-4 bg-primary hover:bg-primary-hover text-white text-xs font-bold py-1 px-3 rounded-full flex items-center gap-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0"
+           >
+             <Sword className="w-3 h-3" /> Challenge
+           </button>
+        </div>
+      </motion.div>
+    );
+  };
+
 const Leaderboard = () => {
   const { user } = useAuth();
   const [leaders, setLeaders] = useState([]);
@@ -189,9 +250,9 @@ const Leaderboard = () => {
           <>
             {leaders.length >= 3 && (
               <div className="flex justify-center items-end gap-4 md:gap-8 mb-20 px-4">
-                <PodiumItem player={leaders[1]} position={2} />
-                <PodiumItem player={leaders[0]} position={1} />
-                <PodiumItem player={leaders[2]} position={3} />
+                <PodiumItem player={leaders[1]} position={2} handleChallenge={handleChallenge} />
+                <PodiumItem player={leaders[0]} position={1} handleChallenge={handleChallenge} />
+                <PodiumItem player={leaders[2]} position={3} handleChallenge={handleChallenge} />
               </div>
             )}
 

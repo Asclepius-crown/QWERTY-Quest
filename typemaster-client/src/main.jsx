@@ -5,13 +5,16 @@ import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { SettingsProvider } from './contexts/SettingsContext.jsx'
 import { FriendsProvider } from './contexts/FriendsContext.jsx'
+import { AchievementProvider } from './contexts/AchievementContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <SettingsProvider>
         <FriendsProvider>
-          <App />
+          <AchievementProvider>
+            <App />
+          </AchievementProvider>
         </FriendsProvider>
       </SettingsProvider>
     </AuthProvider>

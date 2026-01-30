@@ -87,7 +87,7 @@ router.post('/signup', [
 
 // Login
 router.post('/login', [
-  body('email').notEmpty().trim().escape(), // identifier
+  body('email').notEmpty().trim(), // identifier
   body('password').notEmpty(),
   body('mfaToken').optional().isLength({ min: 6, max: 6 }).isNumeric()
 ], async (req, res) => {

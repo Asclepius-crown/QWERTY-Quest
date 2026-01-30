@@ -26,12 +26,16 @@ async function fetchRawFile(owner, repo, filePath, branch = 'main') {
  */
 async function fetchRepoContents(owner, repo, dirPath = '') {
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${dirPath}`;
-    const response = await fetch(url, {
-        headers: {
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'QWERTY-Quest-App'
-        }
-    });
+    const headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'QWERTY-Quest-App'
+    };
+
+    if (process.env.GITHUB_ACCESS_TOKEN) {
+        headers['Authorization'] = `token ${process.env.GITHUB_ACCESS_TOKEN}`;
+    }
+
+    const response = await fetch(url, { headers });
     if (!response.ok) {
         throw new Error(`Failed to fetch contents: ${response.statusText}`);
     }

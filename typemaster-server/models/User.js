@@ -49,13 +49,19 @@ const UserSchema = new mongoose.Schema({
     default: 'avatar1'
   },
   stats: {
-    xp: { type: Number, default: 0 },
-    level: { type: Number, default: 1 },
-    rank: { type: String, default: 'Bronze' },
     racesWon: { type: Number, default: 0 },
     bestWPM: { type: Number, default: 0 },
-    avgWPM: { type: Number, default: 0 }
+    avgWPM: { type: Number, default: 0 },
+    xp: { type: Number, default: 0 },
+    rank: { type: String, default: 'Bronze' },
+    level: { type: Number, default: 1 }
   },
+  achievements: [
+    {
+      id: { type: String, required: true },
+      unlockedAt: { type: Date, default: Date.now }
+    }
+  ],
   friends: [{
     friendId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     status: { type: String, enum: ['pending_sent', 'pending_received', 'accepted'], default: 'pending_sent' },

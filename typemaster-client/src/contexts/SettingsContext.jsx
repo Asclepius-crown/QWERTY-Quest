@@ -17,6 +17,7 @@ const defaultSettings = {
   autoJoin: true,
   liveWpm: true,
   crossPlatform: true,
+  preferredRegion: 'Auto (Best Latency)',
 
   // Typing
   layout: 'QWERTY',
@@ -71,6 +72,53 @@ export const SettingsProvider = ({ children }) => {
     }
   });
 
+  const applyTheme = (theme) => {
+    const root = document.documentElement;
+    root.classList.remove('theme-dark', 'theme-midnight', 'theme-neon', 'theme-light');
+    root.classList.add(`theme-${theme.toLowerCase()}`);
+    
+    // Apply theme-specific CSS variables
+    const themeColors = {
+      'Dark': {
+        '--primary': '#3b82f6',
+        '--primary-hover': '#2563eb',
+        '--base-dark': '#0f172a',
+        '--base-navy': '#1e293b',
+        '--base-content': '#e2e8f0',
+        '--base-muted': '#94a3b8'
+      },
+      'Midnight': {
+        '--primary': '#8b5cf6',
+        '--primary-hover': '#7c3aed',
+        '--base-dark': '#0a0a0a',
+        '--base-navy': '#171717',
+        '--base-content': '#fafafa',
+        '--base-muted': '#a1a1aa'
+      },
+      'Neon': {
+        '--primary': '#10b981',
+        '--primary-hover': '#059669',
+        '--base-dark': '#0c0c0c',
+        '--base-navy': '#1a1a1a',
+        '--base-content': '#f0fdf4',
+        '--base-muted': '#86efac'
+      },
+      'Light': {
+        '--primary': '#0ea5e9',
+        '--primary-hover': '#0284c7',
+        '--base-dark': '#ffffff',
+        '--base-navy': '#f8fafc',
+        '--base-content': '#1e293b',
+        '--base-muted': '#64748b'
+      }
+    };
+    
+    const colors = themeColors[theme] || themeColors['Dark'];
+    Object.entries(colors).forEach(([key, value]) => {
+      root.style.setProperty(key, value);
+    });
+  };
+
   useEffect(() => {
     localStorage.setItem('typemaster_settings', JSON.stringify(settings));
     applyTheme(settings.theme);
@@ -82,13 +130,6 @@ export const SettingsProvider = ({ children }) => {
 
   const resetSettings = () => {
     setSettings(defaultSettings);
-  };
-
-  const applyTheme = (theme) => {
-    const root = document.documentElement;
-    root.classList.remove('theme-dark', 'theme-midnight', 'theme-neon', 'theme-light');
-    root.classList.add(`theme-${theme.toLowerCase()}`);
-    // You can add more specific CSS variable logic here if needed
   };
 
   return (

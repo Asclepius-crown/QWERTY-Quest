@@ -8,6 +8,56 @@ import Navbar from '../components/Navbar';
 import { useFriends } from '../contexts/FriendsContext';
 import { useAuth } from '../contexts/AuthContext';
 
+  const HexNode = ({ friend, center = false, currentUser }) => {
+    const statusColor = center ? 'bg-primary' 
+      : friend?.isOnline ? 'bg-green-500' 
+      : 'bg-base-muted';
+      
+    return (
+      <motion.div 
+        layout
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        whileHover={{ scale: 1.1, zIndex: 10 }}
+        className="relative w-32 h-32 flex items-center justify-center group"
+      >
+        {/* Hexagon Shape */}
+        <div className={`absolute inset-0 hex-mask ${center ? 'bg-primary/20 border-2 border-primary' : 'bg-base-content/5 hover:bg-base-content/10'} transition-colors duration-300`}></div>
+        
+        {/* Border Glow */}
+        <div className="absolute inset-0 hex-mask border border-base-content/10 group-hover:border-primary/50 transition-colors"></div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center text-center p-2">
+           <div className="relative">
+             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-base-content/20 mb-2">
+                <div className={`w-full h-full bg-gradient-to-br ${center ? 'from-primary to-purple-600' : 'from-gray-700 to-gray-900'}`}>
+                   {/* Avatar Placeholder */}
+                   <Users className="w-full h-full p-3 text-base-content/50" />
+                </div>
+             </div>
+             {/* Status Dot */}
+             {!center && (
+                <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-base-dark ${statusColor} shadow-[0_0_10px_currentColor]`}></div>
+             )}
+           </div>
+           
+           <span className={`text-xs font-bold truncate max-w-[80px] ${center ? 'text-primary-glow' : 'text-base-content'}`}>
+             {center ? currentUser?.username : friend.username}
+           </span>
+           
+           <span className={`text-[9px] font-mono -mt-0.5 ${center ? 'text-primary' : 'text-base-muted/50'}`}>
+             {center ? currentUser?.netId : friend?.netId || '###-###'}
+           </span>
+           
+           {!center && (
+             <span className="text-[10px] text-base-muted font-mono mt-0.5">{friend.rank || 'Unranked'}</span>
+           )}
+        </div>
+      </motion.div>
+    );
+  };
+
 const Network = () => {
   const { friends, loading, sendRequest, acceptRequest, removeFriend, fetchFriends } = useFriends();
   const { user } = useAuth();
@@ -54,56 +104,6 @@ const Network = () => {
        setTargetRequest(null);
        setConfirmInput('');
     }
-  };
-
-  const HexNode = ({ friend, center = false }) => {
-    const statusColor = center ? 'bg-primary' 
-      : friend?.isOnline ? 'bg-green-500' 
-      : 'bg-base-muted';
-      
-    return (
-      <motion.div 
-        layout
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileHover={{ scale: 1.1, zIndex: 10 }}
-        className="relative w-32 h-32 flex items-center justify-center group"
-      >
-        {/* Hexagon Shape */}
-        <div className={`absolute inset-0 hex-mask ${center ? 'bg-primary/20 border-2 border-primary' : 'bg-base-content/5 hover:bg-base-content/10'} transition-colors duration-300`}></div>
-        
-        {/* Border Glow */}
-        <div className="absolute inset-0 hex-mask border border-base-content/10 group-hover:border-primary/50 transition-colors"></div>
-
-        {/* Content */}
-        <div className="relative z-10 flex flex-col items-center text-center p-2">
-           <div className="relative">
-             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-base-content/20 mb-2">
-                <div className={`w-full h-full bg-gradient-to-br ${center ? 'from-primary to-purple-600' : 'from-gray-700 to-gray-900'}`}>
-                   {/* Avatar Placeholder */}
-                   <Users className="w-full h-full p-3 text-base-content/50" />
-                </div>
-             </div>
-             {/* Status Dot */}
-             {!center && (
-                <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-base-dark ${statusColor} shadow-[0_0_10px_currentColor]`}></div>
-             )}
-           </div>
-           
-           <span className={`text-xs font-bold truncate max-w-[80px] ${center ? 'text-primary-glow' : 'text-base-content'}`}>
-             {center ? user?.username : friend.username}
-           </span>
-           
-           <span className={`text-[9px] font-mono -mt-0.5 ${center ? 'text-primary' : 'text-base-muted/50'}`}>
-             {center ? user?.netId : friend?.netId || '###-###'}
-           </span>
-           
-           {!center && (
-             <span className="text-[10px] text-base-muted font-mono mt-0.5">{friend.rank || 'Unranked'}</span>
-           )}
-        </div>
-      </motion.div>
-    );
   };
 
   return (
@@ -169,10 +169,10 @@ const Network = () => {
                   {/* Hex Grid Layout Logic - simplified visual clustering */}
                   <div className="flex flex-wrap justify-center gap-4 max-w-4xl">
                      {/* User Center Node */}
-                     <HexNode center />
+                     <HexNode center currentUser={user} />
                      
                      {acceptedFriends.map((friend) => (
-                        <HexNode key={friend.id} friend={friend} />
+                        <HexNode key={friend.id} friend={friend} currentUser={user} />
                      ))}
                      
                      {/* Empty Slots for effect */}

@@ -8,11 +8,13 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '../contexts/AuthContext';
+import { useAchievements, ACHIEVEMENTS } from '../contexts/AchievementContext';
 import Navbar from '../components/Navbar';
 import NeuralHeatmap from '../components/NeuralHeatmap';
 
 const Profile = () => {
   const { user } = useAuth();
+  const { unlocked } = useAchievements();
   const [activeTab, setActiveTab] = useState('overview');
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,15 +81,6 @@ const Profile = () => {
     wpm: race.wpm,
     acc: race.accuracy
   }));
-
-  // Mock Badges
-  const badges = [
-    { id: 1, name: 'Speed Demon', icon: Zap, color: 'text-yellow-400', bg: 'bg-yellow-500/20', unlocked: true },
-    { id: 2, name: 'Sniper', icon: Target, color: 'text-green-400', bg: 'bg-green-500/20', unlocked: true },
-    { id: 3, name: 'Veteran', icon: Shield, color: 'text-blue-400', bg: 'bg-blue-500/20', unlocked: true },
-    { id: 4, name: 'Godlike', icon: Crown, color: 'text-purple-400', bg: 'bg-purple-500/20', unlocked: false },
-    { id: 5, name: 'On Fire', icon: Flame, color: 'text-orange-400', bg: 'bg-orange-500/20', unlocked: false },
-  ];
 
   return (
     <div className="min-h-screen bg-base-dark text-base-content font-sans">
@@ -204,7 +197,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Badges */}
+            {/* Legacy Archive (Achievements) */}
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -212,19 +205,23 @@ const Profile = () => {
                 className="glass-card p-6 rounded-2xl border border-base-content/5"
             >
                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-base-muted text-xs font-bold uppercase tracking-widest">Badges</h3>
-                    <span className="text-xs text-primary">View All</span>
+                    <h3 className="text-base-muted text-xs font-bold uppercase tracking-widest">Legacy Archive</h3>
+                    <span className="text-xs text-primary">{unlocked.length} / {Object.keys(ACHIEVEMENTS).length} Unlocked</span>
                 </div>
                 <div className="grid grid-cols-4 gap-2">
-                    {badges.map((badge) => (
-                        <div key={badge.id} className={`aspect-square rounded-xl flex items-center justify-center border transition-all group relative ${badge.unlocked ? `${badge.bg} ${badge.color} border-base-content/10` : 'bg-base-content/5 text-gray-600 border-transparent grayscale'}`}>
-                            <badge.icon className="w-6 h-6" />
-                            {/* Tooltip */}
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-black text-base-content text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity z-20">
-                                {badge.name}
+                    {Object.values(ACHIEVEMENTS).map((achievement) => {
+                        const isUnlocked = unlocked.includes(achievement.id);
+                        return (
+                            <div key={achievement.id} className={`aspect-square rounded-xl flex items-center justify-center border transition-all group relative ${isUnlocked ? 'bg-primary/10 border-primary/30 text-primary shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'bg-base-content/5 text-base-muted/20 border-transparent grayscale'}`}>
+                                <achievement.icon className="w-6 h-6" />
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[150px] p-2 bg-base-navy border border-base-content/10 text-center rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-20 shadow-xl">
+                                    <div className={`text-xs font-bold ${isUnlocked ? 'text-white' : 'text-base-muted'}`}>{achievement.title}</div>
+                                    <div className="text-[10px] text-base-muted mt-0.5">{achievement.desc}</div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </motion.div>
         </div>

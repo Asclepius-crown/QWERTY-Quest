@@ -1,27 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation } from 'framer-motion';
-import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard, Sword, Github, Code } from 'lucide-react';
+import { Play as PlayIcon, RotateCcw, Trophy, Zap, Target, Clock, Users, User, Keyboard, Sword, Github, Code, Skull } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSettings } from '../contexts/SettingsContext';
+import { useAchievements } from '../contexts/AchievementContext';
 import { useLocation } from 'react-router-dom';
 import io from 'socket.io-client';
 import Navbar from '../components/Navbar';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-python';
 import 'prismjs/components/prism-rust';
 import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-cpp';
 import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-cpp';
 import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-markup';
 
 const Play = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
+  const { checkAchievements } = useAchievements();
   const location = useLocation();
   const controls = useAnimation();
   
@@ -54,9 +57,42 @@ const Play = () => {
   const [accuracy, setAccuracy] = useState(100);
   const [loading, setLoading] = useState(false);
   const [streak, setStreak] = useState(0);
+  const [chaosEffect, setChaosEffect] = useState(null);
 
   const inputRef = useRef(null);
   const audioContextRef = useRef(null);
+
+  // Chaos Mode Logic
+  useEffect(() => {
+    let timeout;
+    if (gameState === 'active' && mode === 'chaos') {
+      const triggerChaos = () => {
+        const effects = [
+          { name: 'BLUR', class: 'blur-sm scale-95 opacity-50 duration-1000' },
+          { name: 'SHAKE', class: 'animate-bounce text-red-500' },
+          { name: 'FLIP', class: 'scale-y-[-1] text-purple-400' },
+          { name: 'PULSE', class: 'animate-pulse contrast-200 brightness-150' },
+          { name: 'DIM', class: 'brightness-0 opacity-20' }
+        ];
+        
+        // 30% chance to trigger an effect every 3 seconds
+        if (Math.random() > 0.4) {
+          const effect = effects[Math.floor(Math.random() * effects.length)];
+          setChaosEffect(effect);
+          
+          // Clear effect after 2-4 seconds
+          setTimeout(() => setChaosEffect(null), 2000 + Math.random() * 2000);
+        }
+        
+        timeout = setTimeout(triggerChaos, 3000);
+      };
+      
+      triggerChaos();
+    } else {
+      setChaosEffect(null);
+    }
+    return () => clearTimeout(timeout);
+  }, [gameState, mode]);
 
   const getAtmosphereClass = () => {
     if (gameState !== 'active') return 'bg-base-dark';
@@ -270,36 +306,9 @@ const Play = () => {
         });
       }
     }
-  }, [currentIndex, errors, startTime, raceId, socket, user.id]);
+  }, [currentIndex, errors, startTime, raceId, socket, user]);
 
-  useEffect(() => {
-    if (gameState === 'completed' && user) {
-      if (mode === 'solo' || mode === 'github') {
-        saveResults();
-      } else if (mode === 'quick-race' && raceId && socket && user) {
-        const timeTaken = 60 - timeLeft;
-        socket.emit('race-finished', {
-          raceId,
-          userId: user.id,
-          wpm: wpm || 0,
-          accuracy: accuracy || 0,
-          errors,
-          timeTaken
-        });
-      }
-    }
-  }, [gameState, mode, raceId, socket, user, wpm, accuracy, errors, timeLeft]);
-
-  useEffect(() => {
-    if (gameState === 'active') {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [gameState]);
-
-  const saveResults = async () => {
+  const saveResults = React.useCallback(async () => {
     if (!user) {
       return;
     }
@@ -317,10 +326,36 @@ const Play = () => {
           timeTaken
         })
       });
+
+      checkAchievements({
+        mode,
+        wpm: wpm || 0,
+        accuracy: accuracy || 0,
+        duration: 60 - timeLeft
+      });
+
     } catch (err) {
       console.error('Failed to save results:', err);
     }
-  };
+  }, [user, timeLeft, textId, wpm, accuracy, errors, mode, checkAchievements]);
+
+  useEffect(() => {
+    if (gameState === 'completed' && user) {
+      if (mode === 'solo' || mode === 'github') {
+        saveResults();
+      } else if (mode === 'quick-race' && raceId && socket && user) {
+        const timeTaken = 60 - timeLeft;
+        socket.emit('race-finished', {
+          raceId,
+          userId: user.id,
+          wpm: wpm || 0,
+          accuracy: accuracy || 0,
+          errors,
+          timeTaken
+        });
+      }
+    }
+  }, [gameState, mode, raceId, socket, user, wpm, accuracy, errors, timeLeft, saveResults]);
 
   const startGame = async () => {
     setUserInput('');
@@ -330,12 +365,13 @@ const Play = () => {
     setWpm(0);
     setAccuracy(100);
     setStreak(0);
+    setChaosEffect(null);
     
     if (mode !== 'ghost') {
       setOpponents([]);
     }
 
-    if (mode === 'solo') {
+    if (mode === 'solo' || mode === 'chaos') {
       setLoading(true);
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/texts/random?difficulty=${difficulty}`);
@@ -488,6 +524,7 @@ const Play = () => {
     setRaceId(null);
     setOpponents([]);
     setStreak(0);
+    setChaosEffect(null);
   };
 
   const renderText = () => {
@@ -611,7 +648,7 @@ const Play = () => {
               className="glass-card p-8 rounded-2xl border border-base-content/5 text-center"
             >
               <h2 className="text-2xl font-bold mb-6">Choose Your Race Mode</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
                 <button
                   onClick={() => setMode('solo')}
                   className={`p-4 rounded-xl border transition-all touch-manipulation ${mode === 'solo' ? 'border-primary bg-primary/20' : 'border-base-content/10 hover:border-base-content/20'}`}
@@ -640,9 +677,16 @@ const Play = () => {
                   <Keyboard className="w-8 h-8 mx-auto mb-2 text-green-400" />
                   <div className="font-bold">Custom</div>
                 </button>
+                <button
+                  onClick={() => setMode('chaos')}
+                  className={`p-4 rounded-xl border transition-all touch-manipulation ${mode === 'chaos' ? 'border-red-500 bg-red-900/20' : 'border-base-content/10 hover:border-base-content/20'}`}
+                >
+                  <Skull className="w-8 h-8 mx-auto mb-2 text-red-500 animate-pulse" />
+                  <div className="font-bold text-red-400">Chaos</div>
+                </button>
               </div>
 
-              {(mode === 'solo' || mode === 'quick-race' || mode === 'github') && (
+              {(mode === 'solo' || mode === 'quick-race' || mode === 'github' || mode === 'chaos') && (
                 <div className="mb-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -692,7 +736,7 @@ const Play = () => {
                   className="px-8 py-4 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-base-content rounded-xl font-bold text-xl shadow-lg transition-all flex items-center gap-3"
                 >
                   <PlayIcon className="w-6 h-6" />
-                  {loading ? 'Loading...' : mode === 'quick-race' ? 'Find Match' : mode === 'github' ? 'Fetch Code' : 'Start Race'}
+                  {loading ? 'Loading...' : mode === 'quick-race' ? 'Find Match' : mode === 'github' ? 'Fetch Code' : mode === 'chaos' ? 'Start Chaos' : 'Start Race'}
                 </button>
                 <button
                   onClick={fetchHistory}
@@ -808,7 +852,12 @@ const Play = () => {
               </div>
 
               {/* Text Display */}
-              <div className="glass-card p-8 rounded-xl border border-base-content/5">
+              <div className={`glass-card p-8 rounded-xl border border-base-content/5 relative transition-all duration-500 ${chaosEffect ? chaosEffect.class : ''}`}>
+                {chaosEffect && (
+                  <div className="absolute top-2 right-2 text-xs font-bold text-red-500 animate-pulse bg-red-900/20 px-2 py-1 rounded">
+                    CHAOS EVENT: {chaosEffect.name}
+                  </div>
+                )}
                 <div className="text-lg md:text-xl leading-relaxed font-mono mb-6 min-h-[120px] md:min-h-[150px] whitespace-pre-wrap">
                   {renderText()}
                 </div>

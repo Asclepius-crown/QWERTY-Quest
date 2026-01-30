@@ -9,6 +9,27 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
+  const MenuLink = ({ to, icon: Icon, label, onClick }) => (
+    <Link 
+      to={to} 
+      onClick={onClick}
+      className="flex items-center gap-3 px-3 py-2 text-sm text-base-content/80 hover:text-base-content hover:bg-base-content/5 rounded-lg transition-all group"
+    >
+      <Icon className="w-4 h-4 text-base-muted group-hover:text-primary transition-colors" />
+      <span>{label}</span>
+    </Link>
+  );
+
+  const MenuButton = ({ icon: Icon, label, onClick, danger = false }) => (
+    <button 
+      onClick={onClick}
+      className={`flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-all group text-left ${danger ? 'text-red-400 hover:bg-red-500/10' : 'text-base-content/80 hover:text-base-content hover:bg-base-content/5'}`}
+    >
+      <Icon className={`w-4 h-4 transition-colors ${danger ? 'text-red-400' : 'text-base-muted group-hover:text-primary'}`} />
+      <span>{label}</span>
+    </button>
+  );
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -66,27 +87,6 @@ const Navbar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [profileOpen]);
-
-  const MenuLink = ({ to, icon: Icon, label, onClick }) => (
-    <Link 
-      to={to} 
-      onClick={onClick}
-      className="flex items-center gap-3 px-3 py-2 text-sm text-base-content/80 hover:text-base-content hover:bg-base-content/5 rounded-lg transition-all group"
-    >
-      <Icon className="w-4 h-4 text-base-muted group-hover:text-primary transition-colors" />
-      <span>{label}</span>
-    </Link>
-  );
-
-  const MenuButton = ({ icon: Icon, label, onClick, danger = false }) => (
-    <button 
-      onClick={onClick}
-      className={`flex items-center gap-3 w-full px-3 py-2 text-sm rounded-lg transition-all group text-left ${danger ? 'text-red-400 hover:bg-red-500/10' : 'text-base-content/80 hover:text-base-content hover:bg-base-content/5'}`}
-    >
-      <Icon className={`w-4 h-4 transition-colors ${danger ? 'text-red-400' : 'text-base-muted group-hover:text-primary'}`} />
-      <span>{label}</span>
-    </button>
-  );
 
   return (
     <nav 
@@ -153,7 +153,7 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-3 w-80 bg-[#0F172A]/95 backdrop-blur-xl border border-base-content/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden z-50 ring-1 ring-white/5"
+                    className="absolute right-0 mt-3 w-80 bg-base-navy/95 backdrop-blur-xl border border-base-content/10 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden z-50 ring-1 ring-base-content/5"
                   >
                     {/* Zone 1: Player Snapshot */}
                     <div className="p-5 bg-gradient-to-br from-white/5 to-transparent border-b border-base-content/5 relative">
@@ -213,7 +213,7 @@ const Navbar = () => {
                         <div className="px-3 py-1 text-[10px] font-bold text-base-muted uppercase tracking-widest">System</div>
                         <MenuLink to="/settings" icon={Settings} label="Settings" onClick={() => setProfileOpen(false)} />
                         <MenuLink to="/settings" icon={Palette} label="Customize" onClick={() => setProfileOpen(false)} />
-                        <MenuButton icon={Bell} label="Notifications" onClick={() => {}} />
+                        <MenuButton icon={Bell} label="Notifications" onClick={() => alert('Notifications system coming soon!')} />
                         <MenuLink to="/network" icon={UsersIcon} label="Manage Uplinks" onClick={() => setProfileOpen(false)} />
                       </div>
 
@@ -222,7 +222,7 @@ const Navbar = () => {
                       {/* Zone 4: Session & Support */}
                       <div>
                         <MenuLink to="/how-it-works" icon={HelpCircle} label="Help / How it works" onClick={() => setProfileOpen(false)} />
-                        <MenuButton icon={Bug} label="Report a bug" onClick={() => {}} />
+                        <MenuButton icon={Bug} label="Report a bug" onClick={() => alert('Please report bugs to our GitHub repository!')} />
                         <MenuButton icon={LogOut} label="Logout" danger onClick={() => { logout(); setProfileOpen(false); }} />
                       </div>
                     </div>

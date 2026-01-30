@@ -30,7 +30,10 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setIsLoggedIn(true);
       } else {
-        console.log('Auth check failed:', response.status);
+        // Silent fail for 401/403 (user not logged in)
+        if (response.status !== 401 && response.status !== 403) {
+             console.log('Auth check failed:', response.status);
+        }
         setIsLoggedIn(false);
         setUser(null);
       }
@@ -157,6 +160,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword,
+          newPassword
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        return { success: true };
+      } else {
+        if (response.status === 401) {
+          return { success: false, error: 'Current password is incorrect' };
+        } else if (response.status === 400) {
+          return { success: false, error: result.error || 'Invalid password format' };
+        } else {
+          return { success: false, error: 'Failed to change password. Please try again.' };
+        }
+      }
+    } catch (error) {
+      return { success: false, error: 'Network error. Please check your connection.' };
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       isLoggedIn,
@@ -167,6 +202,7 @@ export const AuthProvider = ({ children }) => {
       logout,
       updateAvatar,
       uploadAvatar,
+      changePassword,
       checkAuthStatus
     }}>
       {children}
